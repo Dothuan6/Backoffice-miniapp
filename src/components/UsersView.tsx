@@ -76,7 +76,7 @@ export default function UsersView({
       {/* Search Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" id="users-view-hdr">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-display font-medium text-white tracking-tight">User Management</h2>
+          <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">User Management</h2>
           <span className="bg-[#1e2638] text-slate-300 text-xs px-2.5 py-0.5 rounded-full font-mono">
             {users.length} total
           </span>
@@ -140,19 +140,19 @@ export default function UsersView({
           <table className="w-full text-left border-collapse" id="user-management-table">
             <thead>
               <tr className="bg-[#121824] border-b border-[#1e2638] text-[11px] font-mono tracking-wider text-slate-400 select-none">
-                <th className="py-3.5 px-6 font-semibold">USER (USERNAME/NAME)</th>
+                <th className="py-3.5 px-4 md:px-6 font-semibold whitespace-nowrap">USER (USERNAME/NAME)</th>
                 <th
                   onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-                  className="py-3.5 px-6 font-semibold cursor-pointer hover:text-white"
+                  className="py-3.5 px-4 md:px-6 font-semibold cursor-pointer hover:text-white whitespace-nowrap"
                 >
                   <div className="flex items-center gap-1">
                     <span>TELEGRAM ID</span>
                     <ArrowDown className={`w-3.5 h-3.5 text-blue-500 transition-transform ${sortDirection === 'asc' ? 'rotate-185' : ''}`} />
                   </div>
                 </th>
-                <th className="py-3.5 px-6 font-semibold">CU BALANCE</th>
-                <th className="py-3.5 px-6 font-semibold">JOINED</th>
-                <th className="py-3.5 px-6 text-right font-semibold">ACTIONS</th>
+                <th className="py-3.5 px-4 md:px-6 font-semibold whitespace-nowrap">CU BALANCE</th>
+                <th className="py-3.5 px-4 md:px-6 font-semibold whitespace-nowrap">JOINED</th>
+                <th className="py-3.5 px-4 md:px-6 text-right font-semibold whitespace-nowrap">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1e2638]">
@@ -164,7 +164,7 @@ export default function UsersView({
                     className="hover:bg-[#161d2d]/45 group transition-colors duration-150"
                   >
                     {/* User profile with avatar and details */}
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-4 md:px-6 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="relative">
                           <img
@@ -187,28 +187,28 @@ export default function UsersView({
                     </td>
 
                     {/* Telegram ID */}
-                    <td className="py-4 px-6 text-sm font-mono text-slate-300">
+                    <td className="py-4 px-4 md:px-6 text-sm font-mono text-slate-300 whitespace-nowrap">
                       {u.telegramId}
                     </td>
 
                     {/* CU Balance Badge */}
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-4 md:px-6 whitespace-nowrap">
                       {renderBalanceBadge(u.cuBalance)}
                     </td>
 
                     {/* Joined Date */}
-                    <td className="py-4 px-6 text-sm text-slate-350">
+                    <td className="py-4 px-4 md:px-6 text-sm text-slate-350 whitespace-nowrap">
                       {u.joinedDate}
                     </td>
 
                     {/* Actions Panel */}
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-4 md:px-6 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2.5">
                         <button
                           id={`view-btn-${u.username.replace('@', '')}`}
                           onClick={() => onViewProfile(u.username)}
                           title="View user details"
-                          className="w-8 h-8 rounded bg-slate-800/60 border border-[#1e2638] flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors cursor-pointer"
+                          className="w-8 h-8 min-h-0 rounded bg-slate-800/60 border border-[#1e2638] flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -216,7 +216,7 @@ export default function UsersView({
                           id={`edit-btn-${u.username.replace('@', '')}`}
                           onClick={() => onEditUserClick(u)}
                           title="Adjust user balance"
-                          className="w-8 h-8 rounded bg-slate-800/60 border border-[#1e2638] flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-amber-500/40 transition-colors cursor-pointer"
+                          className="w-8 h-8 min-h-0 rounded bg-slate-800/60 border border-[#1e2638] flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-amber-500/40 transition-colors cursor-pointer"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
