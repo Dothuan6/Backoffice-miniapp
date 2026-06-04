@@ -220,10 +220,12 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
         </button>
       </div>
 
-      {/* ── Row 1: Strategy summary + Temporal Workflow ──────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      {/* ── 2-column layout: left = identity + cycle history, right = workflow + config ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+        {/* ── LEFT COLUMN (col-span-2) ──────────────────────────────────── */}
+        <div className="lg:col-span-2 flex flex-col gap-5">
         {/* Strategy identity card */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 flex flex-col justify-between relative overflow-hidden">
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col relative overflow-hidden">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2.5 min-w-0">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -304,23 +306,111 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
               ))}
             </div>
 
-            {/* DCA progress bar */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-[9px] font-mono text-slate-500">
-                <span>DCA Fill Progress</span>
-                <span>{dcaRound} / 10 orders</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-300"
-                  style={{ width: `${(dcaRound / 10) * 100}%` }}
-                />
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Right column: Temporal Workflow + Strategy Configuration stacked */}
+        {/* Cycle History — inside left column */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-200">Cycle History</h3>
+              <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">{MOCK_CYCLES.length}</span>
+            </div>
+            <span className="text-[10px] text-slate-500 font-mono">Click row to expand orders</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs font-mono">
+              <thead>
+                <tr className="bg-[#0c101a] text-[9px] text-slate-500 tracking-wider border-b border-[#1e2638]">
+                  <th className="py-2.5 px-4 font-semibold uppercase w-6"></th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Cycle</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Start</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">End</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Entry</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Avg</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Invested</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Qty</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">DCA</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">PnL</th>
+                  <th className="py-2.5 px-4 font-semibold uppercase whitespace-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1e2638]">
+                {MOCK_CYCLES.map(cycle => {
+                  const isOpen = expandedCycles.has(cycle.cycleId);
+                  return (
+                    <React.Fragment key={cycle.cycleId}>
+                      <tr className="hover:bg-[#161d2d]/35 transition-colors cursor-pointer select-none" onClick={() => toggleCycle(cycle.cycleId)}>
+                        <td className="py-2.5 px-4">
+                          <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                        </td>
+                        <td className="py-2.5 px-4 font-semibold text-slate-300">{cycle.cycleId}</td>
+                        <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap">{cycle.startTime}</td>
+                        <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap">{cycle.endTime}</td>
+                        <td className="py-2.5 px-4 text-slate-200">${cycle.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-slate-200">${cycle.avgPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-slate-300">{cycle.invested.toFixed(2)}</td>
+                        <td className="py-2.5 px-4 text-slate-300">{cycle.qty.toFixed(6)}</td>
+                        <td className="py-2.5 px-4 text-center text-slate-400">{cycle.dcaRounds}</td>
+                        <td className="py-2.5 px-4">
+                          <div className="flex flex-col leading-tight">
+                            <span className={`font-bold ${pnlColor(cycle.pnlPct)}`}>{pnlFmt(cycle.pnlPct)}</span>
+                            <span className={`text-[10px] ${pnlColor(cycle.pnlUsdt)}`}>{pnlFmt(cycle.pnlUsdt, ' USDT')}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-4">{statusBadge(cycle.status)}</td>
+                      </tr>
+                      {isOpen && (
+                        <tr>
+                          <td colSpan={11} className="p-0">
+                            <div className="bg-[#0a0e18] border-t border-[#1e2638]/60 px-8 py-3">
+                              <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
+                                <span>Orders in {cycle.cycleId}</span>
+                                <div className="flex-1 h-px bg-[#1e2638]" />
+                                <span>{cycle.orders.length} orders</span>
+                              </div>
+                              <table className="w-full text-left border-collapse text-[11px] font-mono">
+                                <thead>
+                                  <tr className="text-[9px] text-slate-600 tracking-wider">
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Order ID</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Side</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Type</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Qty</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Price</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Filled</th>
+                                    <th className="py-1.5 pr-5 font-semibold uppercase">Time</th>
+                                    <th className="py-1.5 font-semibold uppercase">Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#1e2638]/40">
+                                  {cycle.orders.map(o => (
+                                    <tr key={o.orderId} className="hover:bg-white/[0.02] transition-colors">
+                                      <td className="py-1.5 pr-5 text-slate-500">{o.orderId}</td>
+                                      <td className="py-1.5 pr-5"><span className={`font-bold uppercase ${o.side === 'BUY' ? 'text-teal-400' : 'text-rose-400'}`}>{o.side}</span></td>
+                                      <td className="py-1.5 pr-5 text-slate-500 uppercase">{o.type}</td>
+                                      <td className="py-1.5 pr-5 text-slate-300">{o.qty.toFixed(6)}</td>
+                                      <td className="py-1.5 pr-5 text-slate-300">${o.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                      <td className="py-1.5 pr-5 text-slate-400">{o.filled.toFixed(6)}</td>
+                                      <td className="py-1.5 pr-5 text-slate-600">{o.time}</td>
+                                      <td className="py-1.5">{orderStatusBadge(o.status)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </div>{/* end left column */}
+
+        {/* ── RIGHT COLUMN ──────────────────────────────────────────────── */}
         <div className="flex flex-col gap-5">
           {/* Temporal Workflow */}
           <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col">
@@ -347,21 +437,21 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
             </div>
           </div>
 
-          {/* Strategy Configuration */}
-          <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col gap-4 flex-1">
-            <div className="border-b border-[#1e2638]/60 pb-2.5">
+          {/* Strategy Configuration — compact 2-col grid */}
+          <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col gap-3">
+            <div className="border-b border-[#1e2638]/60 pb-2">
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Strategy Configuration</h3>
             </div>
             <div className="space-y-4">
               {STRATEGY_CONFIG.map(group => (
                 <div key={group.group}>
-                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
+                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-1.5 flex items-center gap-1.5">
                     <span>{group.group}</span>
                     <div className="flex-1 h-px bg-[#1e2638]" />
                   </div>
                   <div className="space-y-1.5">
                     {group.params.map(p => (
-                      <div key={p.label} className="flex items-center justify-between gap-3 text-xs font-mono">
+                      <div key={p.label} className="flex items-center justify-between gap-3 text-[11px] font-mono">
                         <span className="text-slate-500 shrink-0">{p.label}</span>
                         <span className={
                           (p as any).danger  ? 'text-rose-400 font-bold'     :
@@ -378,162 +468,6 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
               ))}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ── Row 3: Open Orders (full width) ──────────────────────────────── */}
-      <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-200">Open Orders</h3>
-            <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">
-              {MOCK_OPEN_ORDERS.length}
-            </span>
-          </div>
-          <span className="text-[10px] text-slate-500 font-mono">Cycle cy-0047</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs font-mono">
-            <thead>
-              <tr className="bg-[#0c101a] text-[9px] text-slate-500 tracking-wider border-b border-[#1e2638]">
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Order ID</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Side</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Type</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Qty</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Price</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Filled</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Placed At</th>
-                <th className="py-2.5 px-5 font-semibold uppercase">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e2638]">
-              {MOCK_OPEN_ORDERS.map(o => (
-                <tr key={o.orderId} className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-5 text-slate-400">{o.orderId}</td>
-                  <td className="py-3 px-5">
-                    <span className={`font-bold uppercase ${o.side === 'BUY' ? 'text-teal-400' : 'text-rose-400'}`}>{o.side}</span>
-                  </td>
-                  <td className="py-3 px-5 text-slate-400 uppercase">{o.type}</td>
-                  <td className="py-3 px-5 text-slate-200">{o.qty.toFixed(6)}</td>
-                  <td className="py-3 px-5 text-slate-200">${o.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  <td className="py-3 px-5 text-slate-400">{o.filled.toFixed(6)}</td>
-                  <td className="py-3 px-5 text-slate-500">{o.time}</td>
-                  <td className="py-3 px-5">{orderStatusBadge(o.status)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ── Row 4: Cycle History — grouped + expandable ───────────────────── */}
-      <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-200">Cycle History</h3>
-            <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">
-              {MOCK_CYCLES.length}
-            </span>
-          </div>
-          <span className="text-[10px] text-slate-500 font-mono">Click row to expand orders</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs font-mono">
-            <thead>
-              <tr className="bg-[#0c101a] text-[9px] text-slate-500 tracking-wider border-b border-[#1e2638]">
-                <th className="py-2.5 px-5 font-semibold uppercase w-8"></th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Cycle ID</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Start Time</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">End Time</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Entry Price</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Avg Price</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Invested</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Qty</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">DCA</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Realized PnL</th>
-                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e2638]">
-              {MOCK_CYCLES.map(cycle => {
-                const isOpen = expandedCycles.has(cycle.cycleId);
-                return (
-                  <React.Fragment key={cycle.cycleId}>
-                    {/* Cycle summary row */}
-                    <tr
-                      className="hover:bg-[#161d2d]/35 transition-colors cursor-pointer select-none"
-                      onClick={() => toggleCycle(cycle.cycleId)}
-                    >
-                      <td className="py-3 px-5">
-                        <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-                      </td>
-                      <td className="py-3 px-5 font-semibold text-slate-300">{cycle.cycleId}</td>
-                      <td className="py-3 px-5 text-slate-500">{cycle.startTime}</td>
-                      <td className="py-3 px-5 text-slate-500">{cycle.endTime}</td>
-                      <td className="py-3 px-5 text-slate-200">${cycle.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="py-3 px-5 text-slate-200">${cycle.avgPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                      <td className="py-3 px-5 text-slate-300">{cycle.invested.toFixed(2)} USDT</td>
-                      <td className="py-3 px-5 text-slate-300">{cycle.qty.toFixed(6)}</td>
-                      <td className="py-3 px-5 text-center text-slate-400">{cycle.dcaRounds}</td>
-                      <td className="py-3 px-5">
-                        <div className="flex flex-col leading-tight">
-                          <span className={`font-bold ${pnlColor(cycle.pnlPct)}`}>{pnlFmt(cycle.pnlPct)}</span>
-                          <span className={`text-[10px] ${pnlColor(cycle.pnlUsdt)}`}>{pnlFmt(cycle.pnlUsdt, ' USDT')}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-5">{statusBadge(cycle.status)}</td>
-                    </tr>
-
-                    {/* Expanded orders sub-table */}
-                    {isOpen && (
-                      <tr>
-                        <td colSpan={11} className="p-0 border-b border-[#1e2638]">
-                          <div className="bg-[#0a0e18] border-t border-[#1e2638]/60 px-8 py-3">
-                            <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
-                              <span>Orders in {cycle.cycleId}</span>
-                              <div className="flex-1 h-px bg-[#1e2638]" />
-                              <span>{cycle.orders.length} orders</span>
-                            </div>
-                            <table className="w-full text-left border-collapse text-[11px] font-mono">
-                              <thead>
-                                <tr className="text-[9px] text-slate-600 tracking-wider">
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Order ID</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Side</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Type</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Qty</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Price</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Filled</th>
-                                  <th className="py-1.5 pr-6 font-semibold uppercase">Time</th>
-                                  <th className="py-1.5 font-semibold uppercase">Status</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-[#1e2638]/40">
-                                {cycle.orders.map(o => (
-                                  <tr key={o.orderId} className="hover:bg-white/[0.02] transition-colors">
-                                    <td className="py-2 pr-6 text-slate-500">{o.orderId}</td>
-                                    <td className="py-2 pr-6">
-                                      <span className={`font-bold uppercase ${o.side === 'BUY' ? 'text-teal-400' : 'text-rose-400'}`}>{o.side}</span>
-                                    </td>
-                                    <td className="py-2 pr-6 text-slate-500 uppercase">{o.type}</td>
-                                    <td className="py-2 pr-6 text-slate-300">{o.qty.toFixed(6)}</td>
-                                    <td className="py-2 pr-6 text-slate-300">${o.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                                    <td className="py-2 pr-6 text-slate-400">{o.filled.toFixed(6)}</td>
-                                    <td className="py-2 pr-6 text-slate-600">{o.time}</td>
-                                    <td className="py-2">{orderStatusBadge(o.status)}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
