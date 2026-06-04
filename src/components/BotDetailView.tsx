@@ -262,136 +262,121 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
             </div>
           </div>
 
-          {/* Quick stats bar */}
-          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#1e2638]">
-            {[
-              { label: 'Cycle Count', value: `#${bot.cycleCount.toLocaleString()}` },
-              { label: 'Balance',     value: bot.balance },
-              { label: 'PL 24H',      value: `${bot.pl24h > 0 ? '+' : ''}${bot.pl24h}%`, color: pnlColor(bot.pl24h) },
-            ].map(s => (
-              <div key={s.label} className="text-center">
-                <span className="text-[9px] text-slate-500 font-mono uppercase block mb-0.5">{s.label}</span>
-                <span className={`text-sm font-mono font-bold ${s.color ?? 'text-white'}`}>{s.value}</span>
+          {/* Current Cycle metrics */}
+          <div className="mt-4 pt-4 border-t border-[#1e2638] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-300">Current Cycle</span>
+                <span className="text-[10px] bg-[#1c2333] text-slate-400 px-2 py-0.5 rounded font-mono border border-[#2a354d]">cy-0047</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Temporal Workflow */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2.5 mb-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Temporal Workflow</span>
-            <span className="bg-emerald-950/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/25 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              RUNNING
-            </span>
-          </div>
-          <div className="space-y-2.5 text-xs font-mono text-slate-400 flex-1">
-            {[
-              { label: 'WORKFLOW ID',  value: 'dca-64e2f3-main-flow', mono: true },
-              { label: 'LAST RUN ID',  value: '01JXK8...7F9S',        mono: true },
-              { label: 'HEARTBEAT',    value: '2s ago',               color: 'text-emerald-400' },
-              { label: 'STARTED AT',   value: '2026-06-01 09:00',     mono: true },
-              { label: 'TOTAL CYCLES', value: bot.cycleCount.toLocaleString(), color: 'text-white' },
-            ].map(r => (
-              <div key={r.label} className="flex justify-between items-center">
-                <span>{r.label}</span>
-                <span className={`font-semibold ${r.color ?? 'text-slate-200'} select-all text-right`}>{r.value}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/25">OPEN</span>
+                <span className="bg-amber-950/40 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/25">WAITING_TP</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Row 2: Current Cycle + Strategy Configuration ────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        {/* Current Cycle */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-3 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2.5">
-            <div className="flex items-center gap-2.5">
-              <h3 className="text-sm font-semibold text-slate-200">Current Cycle</h3>
-              <span className="text-[10px] bg-[#1c2333] text-slate-400 px-2 py-0.5 rounded font-mono border border-[#2a354d]">cy-0047</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/25">OPEN</span>
-              <span className="bg-amber-950/40 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/25">WAITING_TP</span>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {[
-              {
-                label: 'DCA Progress',
-                node: (
-                  <div className="flex items-center justify-between">
-                    <span className="text-base font-bold text-white font-mono">Round {dcaRound} / 10</span>
-                    <div className="flex flex-col -space-y-0.5 ml-2">
-                      <button onClick={() => setDcaRound(p => Math.min(p+1,10))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▲</button>
-                      <button onClick={() => setDcaRound(p => Math.max(p-1,1))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▼</button>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {[
+                {
+                  label: 'DCA Progress',
+                  node: (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-white font-mono">Round {dcaRound} / 10</span>
+                      <div className="flex flex-col -space-y-0.5 ml-2">
+                        <button onClick={() => setDcaRound(p => Math.min(p+1,10))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▲</button>
+                        <button onClick={() => setDcaRound(p => Math.max(p-1,1))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▼</button>
+                      </div>
                     </div>
+                  ),
+                },
+                { label: 'Entry Price',    value: '$48,100.00' },
+                { label: 'Avg Price',      value: '$48,294.10' },
+                { label: 'Total Invested', value: `${totalInvested.toFixed(2)} USDT` },
+                { label: 'Total Qty',      value: `${quantity} BTC` },
+                { label: 'Unrealized P&L', value: '+0.42%', color: 'text-emerald-400' },
+              ].map((m, i) => (
+                <div key={i} className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-2.5 space-y-1">
+                  <span className="text-[9px] text-slate-500 font-mono uppercase block">{m.label}</span>
+                  {m.node ?? (
+                    <span className={`text-sm font-bold font-mono ${m.color ?? 'text-white'}`}>{m.value}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* DCA progress bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-[9px] font-mono text-slate-500">
+                <span>DCA Fill Progress</span>
+                <span>{dcaRound} / 10 orders</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-300"
+                  style={{ width: `${(dcaRound / 10) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right column: Temporal Workflow + Strategy Configuration stacked */}
+        <div className="flex flex-col gap-5">
+          {/* Temporal Workflow */}
+          <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col">
+            <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2.5 mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Temporal Workflow</span>
+              <span className="bg-emerald-950/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/25 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                RUNNING
+              </span>
+            </div>
+            <div className="space-y-2.5 text-xs font-mono text-slate-400">
+              {[
+                { label: 'WORKFLOW ID',  value: 'dca-64e2f3-main-flow' },
+                { label: 'LAST RUN ID',  value: '01JXK8...7F9S' },
+                { label: 'HEARTBEAT',    value: '2s ago',               color: 'text-emerald-400' },
+                { label: 'STARTED AT',   value: '2026-06-01 09:00' },
+                { label: 'TOTAL CYCLES', value: bot.cycleCount.toLocaleString(), color: 'text-white' },
+              ].map(r => (
+                <div key={r.label} className="flex justify-between items-center">
+                  <span>{r.label}</span>
+                  <span className={`font-semibold ${r.color ?? 'text-slate-200'} select-all text-right`}>{r.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Strategy Configuration */}
+          <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col gap-4 flex-1">
+            <div className="border-b border-[#1e2638]/60 pb-2.5">
+              <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Strategy Configuration</h3>
+            </div>
+            <div className="space-y-4">
+              {STRATEGY_CONFIG.map(group => (
+                <div key={group.group}>
+                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
+                    <span>{group.group}</span>
+                    <div className="flex-1 h-px bg-[#1e2638]" />
                   </div>
-                ),
-              },
-              { label: 'Entry Price',     value: '$48,100.00' },
-              { label: 'Avg Price',       value: '$48,294.10' },
-              { label: 'Total Invested',  value: `${totalInvested.toFixed(2)} USDT` },
-              { label: 'Total Qty',       value: `${quantity} BTC` },
-              { label: 'Unrealized P&L',  value: '+0.42%', color: 'text-emerald-400' },
-            ].map((m, i) => (
-              <div key={i} className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3 space-y-1.5">
-                <span className="text-[9px] text-slate-500 font-mono uppercase block">{m.label}</span>
-                {m.node ?? (
-                  <span className={`text-base font-bold font-mono ${m.color ?? 'text-white'}`}>{m.value}</span>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Progress bar */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-[10px] font-mono text-slate-500">
-              <span>DCA Fill Progress</span>
-              <span>{dcaRound} / 10 orders</span>
-            </div>
-            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-300"
-                style={{ width: `${(dcaRound / 10) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Strategy Configuration — full expanded */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 flex flex-col gap-4 overflow-y-auto">
-          <div className="border-b border-[#1e2638]/60 pb-2.5">
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Strategy Configuration</h3>
-          </div>
-
-          <div className="space-y-4 flex-1">
-            {STRATEGY_CONFIG.map(group => (
-              <div key={group.group}>
-                <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
-                  <span>{group.group}</span>
-                  <div className="flex-1 h-px bg-[#1e2638]" />
+                  <div className="space-y-1.5">
+                    {group.params.map(p => (
+                      <div key={p.label} className="flex items-center justify-between gap-3 text-xs font-mono">
+                        <span className="text-slate-500 shrink-0">{p.label}</span>
+                        <span className={
+                          (p as any).danger  ? 'text-rose-400 font-bold'     :
+                          (p as any).muted   ? 'text-slate-600'              :
+                          p.highlight        ? 'text-blue-400 font-semibold' :
+                          'text-slate-200 text-right'
+                        }>
+                          {p.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  {group.params.map(p => (
-                    <div key={p.label} className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-slate-500">{p.label}</span>
-                      <span className={
-                        (p as any).danger  ? 'text-rose-400 font-bold' :
-                        (p as any).muted   ? 'text-slate-600'          :
-                        p.highlight        ? 'text-blue-400 font-semibold' :
-                        'text-slate-200'
-                      }>
-                        {p.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
