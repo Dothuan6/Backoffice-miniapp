@@ -10,7 +10,7 @@ import ExchangesView from './components/ExchangesView';
 import LoginView from './components/LoginView';
 import AdminManagementView from './components/AdminManagementView';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser } from './types';
+import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity } from './types';
 import {
   INITIAL_USERS,
   INITIAL_BOTS,
@@ -21,8 +21,14 @@ import {
   MOCK_API_KEYS,
   MOCK_PAYMENTS,
   MOCK_REFERRALS,
-  INITIAL_EXCHANGES
+  INITIAL_EXCHANGES,
+  INITIAL_STRATEGY_ACTIVITIES,
+  MOCK_ALL_PAYMENTS,
+  MOCK_USER_TRADING_STATS,
+  MOCK_TRADING_REPORT,
 } from './data';
+import PaymentsAllView from './components/PaymentsAllView';
+import TradingReportView from './components/TradingReportView';
 import { Check, X, AlertTriangle, Play } from 'lucide-react';
 
 export default function App() {
@@ -49,6 +55,7 @@ export default function App() {
   // Spend and burn states
   const [spendEvents, setSpendEvents] = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
   const [dailyBurn, setDailyBurn] = useState<DailyBurn[]>(INITIAL_DAILY_BURN);
+  const [strategyActivities] = useState<StrategyActivity[]>(INITIAL_STRATEGY_ACTIVITIES);
 
 
 
@@ -128,6 +135,15 @@ export default function App() {
 
     setGeneralToast(`CU Balance adjusted successfully by ${amount >= 0 ? '+' : ''}${amount.toLocaleString()} for ${username}`);
     setTimeout(() => setGeneralToast(null), 3000);
+  };
+
+  const handleToggleLock = (username: string) => {
+    setUsers(prev => prev.map(u => u.username === username ? { ...u, locked: !u.locked } : u));
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0];
+    const user = users.find(u => u.username === username);
+    const action = user?.locked ? 'unlocked' : 'locked';
+    setAdminActivities(prev => [{ timestamp: timeStr, message: `Account ${action}: ${username}`, admin: activeAdminEmail }, ...prev]);
   };
 
   // Bot Status toggles (adds mutations list)
@@ -295,6 +311,7 @@ export default function App() {
                     activeUsersCount={activeUsersCount}
                     spendEvents={spendEvents}
                     dailyBurn={dailyBurn}
+                    strategyActivities={strategyActivities}
                   />
                 );
               case 'users':
@@ -327,12 +344,18 @@ export default function App() {
                       totalEarningsCu: 0,
                       referredUsers: []
                     }}
+                    tradingStats={MOCK_USER_TRADING_STATS[activeUserObject.username]}
                     adminActivities={adminActivities.filter(a => a.message.includes(activeUserObject.username) || a.message.includes('Committed'))}
                     onBackToList={() => setCurrentView('users')}
                     onModifyCuBalance={handleModifyCuBalance}
                     onToggleBot={handleToggleBotStatus}
+                    onToggleLock={handleToggleLock}
                   />
                 );
+              case 'payments_all':
+                return <PaymentsAllView payments={MOCK_ALL_PAYMENTS} />;
+              case 'trading_report':
+                return <TradingReportView rows={MOCK_TRADING_REPORT} />;
               case 'strategies':
                 return (
                   <StrategiesView
@@ -409,6 +432,7 @@ export default function App() {
                     activeUsersCount={activeUsersCount}
                     spendEvents={spendEvents}
                     dailyBurn={dailyBurn}
+                    strategyActivities={strategyActivities}
                   />
                 );
             }

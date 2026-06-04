@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ChevronDown, Check, Landmark, Menu, X, Shield } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, ScrollText, Settings, ChevronDown, Landmark, Menu, X, Shield, CreditCard, BarChart2 } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
@@ -34,6 +34,8 @@ export default function Sidebar({
     { id: 'admins', label: 'Admins', icon: Shield, badge: adminCount },
     { id: 'strategies', label: 'Strategies', icon: Cpu },
     { id: 'cu_reports', label: 'CU Reports', icon: FileSpreadsheet },
+    { id: 'trading_report', label: 'Trading Report', icon: BarChart2 },
+    { id: 'payments_all', label: 'Payments', icon: CreditCard },
     { id: 'audit_log', label: 'Audit Log', icon: ScrollText },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];

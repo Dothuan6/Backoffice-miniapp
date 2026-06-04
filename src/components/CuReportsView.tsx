@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { CreditCard, Users, Info, ChevronRight, TrendingUp } from 'lucide-react';
-import { SpendEvent, DailyBurn } from '../types';
+import { CreditCard, Users, Info, TrendingUp, Activity, Pause, Square } from 'lucide-react';
+import { SpendEvent, DailyBurn, StrategyActivity } from '../types';
 
 interface CuReportsViewProps {
   totalSpent: number;
   activeUsersCount: number;
   spendEvents: SpendEvent[];
   dailyBurn: DailyBurn[];
+  strategyActivities: StrategyActivity[];
 }
 
 export default function CuReportsView({
   totalSpent,
   activeUsersCount,
   spendEvents,
-  dailyBurn
+  dailyBurn,
+  strategyActivities
 }: CuReportsViewProps) {
   const [hoveredPoint, setHoveredPoint] = useState<{ index: number; x: number; y: number; val: DailyBurn } | null>(null);
 
@@ -281,6 +283,56 @@ export default function CuReportsView({
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* Strategy Activities */}
+      <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5" id="strategy-activities-card">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-violet-400" />
+            </div>
+            <h3 className="text-sm font-semibold text-slate-300 tracking-wide uppercase">Strategy Activities</h3>
+          </div>
+          <span className="text-xs text-slate-500 font-mono">{strategyActivities.length} strategies</span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs font-mono">
+            <thead>
+              <tr className="border-b border-[#1e2638]">
+                <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Strategy</th>
+                <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Pair</th>
+                <th className="text-right text-slate-500 font-semibold pb-3 pr-4">CU Spent</th>
+                <th className="text-right text-slate-500 font-semibold pb-3 pr-4">Cycles</th>
+                <th className="text-right text-slate-500 font-semibold pb-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1e2638]">
+              {strategyActivities.map((item, i) => {
+                const statusConfig = {
+                  ACTIVE: { label: 'ACTIVE', icon: <Activity className="w-3 h-3" />, cls: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+                  PAUSED: { label: 'PAUSED', icon: <Pause className="w-3 h-3" />, cls: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+                  STOPPED: { label: 'STOPPED', icon: <Square className="w-3 h-3" />, cls: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
+                }[item.status];
+                return (
+                  <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 pr-4 text-slate-200 font-semibold">{item.strategyName}</td>
+                    <td className="py-3 pr-4 text-slate-400">{item.pair}</td>
+                    <td className="py-3 pr-4 text-right text-white">{item.cuSpent.toLocaleString()} <span className="text-slate-500">CU</span></td>
+                    <td className="py-3 pr-4 text-right text-slate-300">{item.cycles}</td>
+                    <td className="py-3 text-right">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${statusConfig.cls}`}>
+                        {statusConfig.icon}
+                        {statusConfig.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

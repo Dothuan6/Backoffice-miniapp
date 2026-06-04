@@ -11,19 +11,20 @@ export interface User {
   lastActive: string;
   referralCode: string;
   referredBy?: string;
+  locked?: boolean;
 }
 
 export interface Bot {
-  id: string; // e.g. S-99201
-  name: string; // e.g. BTC Trend Follower v2
-  ticker: string; // e.g. BTC/USDT-GRID or BTCUSDT
-  userId: string; // e.g. @cryptodan88 or @johndoe_quant
-  exchange: string; // e.g. Binance Spot, Kraken, Binance
-  cycleCount: number; // e.g. 14291
-  pauseReason: string; // e.g. API Latency Spike > 500ms or empty
+  id: string;
+  name: string;
+  ticker: string;
+  userId: string;
+  exchange: string;
+  cycleCount: number;
+  pauseReason: string;
   status: 'ACTIVE' | 'ANOMALY' | 'PAUSED';
-  balance: string; // e.g. "0.842 BTC" or "450.00 SOL"
-  pl24h: number; // P&L percentage, e.g. 2.45, -0.12
+  balance: string;
+  pl24h: number;
 }
 
 export interface SpendEvent {
@@ -61,6 +62,7 @@ export interface UserApiKey {
 
 export interface PaymentRecord {
   id: string;
+  username?: string;
   timestamp: string;
   amountUsd: number;
   cuCredited: number;
@@ -95,4 +97,35 @@ export interface AdminUser {
   email: string;
   role: string;
   createdDate: string;
+}
+
+export interface StrategyActivity {
+  strategyName: string;
+  pair: string;
+  cuSpent: number;
+  cycles: number;
+  status: 'ACTIVE' | 'PAUSED' | 'STOPPED';
+}
+
+export interface UserTradingStats {
+  totalVolume: number;
+  totalPnl: number;
+  totalTxns: number;
+  winRate: number;
+  byExchange: {
+    exchange: string;
+    volume: number;
+    pnl: number;
+    txns: number;
+  }[];
+}
+
+export interface TradingReportRow {
+  exchange: string;
+  pair: string;
+  txns: number;
+  volume: number;
+  pnl: number;
+  winRate: number;
+  lastActivity: string;
 }

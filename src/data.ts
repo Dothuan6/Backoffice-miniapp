@@ -1,4 +1,4 @@
-import { User, Bot, SpendEvent, AdminActivity, DailyBurn, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, Exchange } from './types';
+import { User, Bot, SpendEvent, AdminActivity, DailyBurn, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, Exchange, StrategyActivity, UserTradingStats, TradingReportRow } from './types';
 
 export const INITIAL_USERS: User[] = [
   {
@@ -241,6 +241,14 @@ export const INITIAL_SPEND_EVENTS: SpendEvent[] = [
   { eventName: 'ADD_SUB_BALANCE', spent: 3812 }
 ];
 
+export const INITIAL_STRATEGY_ACTIVITIES: StrategyActivity[] = [
+  { strategyName: 'BTC DCA Bot', pair: 'BTC/USDT', cuSpent: 4320, cycles: 87, status: 'ACTIVE' },
+  { strategyName: 'ETH Grid', pair: 'ETH/USDT', cuSpent: 3105, cycles: 64, status: 'ACTIVE' },
+  { strategyName: 'SOL Martingale', pair: 'SOL/USDT', cuSpent: 2780, cycles: 42, status: 'PAUSED' },
+  { strategyName: 'BNB Scalper', pair: 'BNB/USDT', cuSpent: 1940, cycles: 33, status: 'ACTIVE' },
+  { strategyName: 'DOGE Swing', pair: 'DOGE/USDT', cuSpent: 890, cycles: 11, status: 'STOPPED' },
+];
+
 export const INITIAL_DAILY_BURN: DailyBurn[] = [
   { time: '00:00', spent: 210 },
   { time: '04:40', spent: 150 },
@@ -325,6 +333,52 @@ export const MOCK_REFERRALS: Record<string, ReferralsInfo> = {
     ]
   }
 };
+
+export const MOCK_ALL_PAYMENTS: PaymentRecord[] = [
+  { id: 'pay-772', username: '@cryptodan88',    timestamp: '2026-05-28 09:12', amountUsd: 150.00, cuCredited: 15000, method: 'Stripe Credit Card',      status: 'SUCCESS' },
+  { id: 'pay-651', username: '@cryptodan88',    timestamp: '2026-04-12 11:45', amountUsd:  50.00, cuCredited:  5000, method: 'Crypto Pay (USDT_TRC20)', status: 'SUCCESS' },
+  { id: 'pay-213', username: '@cryptodan88',    timestamp: '2026-03-30 18:22', amountUsd: 100.00, cuCredited: 10000, method: 'GatePay Crypto',           status: 'FAILED'  },
+  { id: 'pay-890', username: '@johndoe_quant',  timestamp: '2026-05-20 14:05', amountUsd:  75.00, cuCredited:  7500, method: 'Stripe Credit Card',      status: 'SUCCESS' },
+  { id: 'pay-512', username: '@johndoe_quant',  timestamp: '2026-04-08 09:30', amountUsd:  25.00, cuCredited:  2500, method: 'Crypto Pay (USDT_TRC20)', status: 'PENDING' },
+  { id: 'pay-301', username: '@moon_scalper',   timestamp: '2026-05-15 17:44', amountUsd: 200.00, cuCredited: 20000, method: 'GatePay Crypto',           status: 'SUCCESS' },
+  { id: 'pay-144', username: '@hodl_pro',       timestamp: '2026-05-10 08:20', amountUsd:  50.00, cuCredited:  5000, method: 'Stripe Credit Card',      status: 'SUCCESS' },
+  { id: 'pay-088', username: '@btc_enthusiast', timestamp: '2026-04-22 21:15', amountUsd: 300.00, cuCredited: 30000, method: 'Crypto Pay (USDT_TRC20)', status: 'SUCCESS' },
+];
+
+export const MOCK_USER_TRADING_STATS: Record<string, UserTradingStats> = {
+  '@cryptodan88': {
+    totalVolume: 482310,
+    totalPnl: 12450,
+    totalTxns: 1842,
+    winRate: 63.4,
+    byExchange: [
+      { exchange: 'Binance',  volume: 280000, pnl:  8200, txns: 1120 },
+      { exchange: 'Bybit',    volume: 120000, pnl:  3100, txns:  520 },
+      { exchange: 'Kraken',   volume:  82310, pnl:  1150, txns:  202 },
+    ]
+  },
+  '@johndoe_quant': {
+    totalVolume: 134200,
+    totalPnl: -1820,
+    totalTxns: 440,
+    winRate: 48.2,
+    byExchange: [
+      { exchange: 'Binance',  volume:  90000, pnl: -1200, txns: 280 },
+      { exchange: 'OKX',      volume:  44200, pnl:  -620, txns: 160 },
+    ]
+  }
+};
+
+export const MOCK_TRADING_REPORT: TradingReportRow[] = [
+  { exchange: 'Binance',  pair: 'BTC/USDT',  txns: 4820, volume: 9_240_000, pnl:  54200, winRate: 61.2, lastActivity: '2026-06-04 09:41' },
+  { exchange: 'Binance',  pair: 'ETH/USDT',  txns: 3105, volume: 4_880_000, pnl:  28100, winRate: 58.7, lastActivity: '2026-06-04 09:38' },
+  { exchange: 'OKX',      pair: 'BTC/USDT',  txns: 1840, volume: 3_120_000, pnl:  17800, winRate: 56.1, lastActivity: '2026-06-04 08:55' },
+  { exchange: 'Bybit',    pair: 'SOL/USDT',  txns: 2210, volume: 1_640_000, pnl:  -4300, winRate: 44.3, lastActivity: '2026-06-04 07:22' },
+  { exchange: 'OKX',      pair: 'ETH/USDT',  txns:  980, volume: 1_210_000, pnl:   9100, winRate: 59.4, lastActivity: '2026-06-03 23:11' },
+  { exchange: 'Bybit',    pair: 'BNB/USDT',  txns:  760, volume:   880_000, pnl:   3200, winRate: 52.6, lastActivity: '2026-06-03 22:40' },
+  { exchange: 'Kraken',   pair: 'BTC/USDT',  txns:  420, volume:   720_000, pnl:  -1100, winRate: 46.8, lastActivity: '2026-06-03 18:05' },
+  { exchange: 'Binance',  pair: 'DOGE/USDT', txns: 1580, volume:   540_000, pnl:  -8400, winRate: 41.5, lastActivity: '2026-06-03 16:30' },
+];
 
 export const INITIAL_EXCHANGES: Exchange[] = [
   {
