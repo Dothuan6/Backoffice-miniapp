@@ -1,22 +1,18 @@
 import React from 'react';
-import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ShieldAlert, ChevronDown, Check, Landmark } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ChevronDown, Check, Landmark } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
   setCurrentView: (view: string) => void;
   userCount: number;
   exchangeCount: number;
-  onKillSwitchClick: () => void;
-  isKillSwitchActive: boolean;
 }
 
 export default function Sidebar({
   currentView,
   setCurrentView,
   userCount,
-  exchangeCount,
-  onKillSwitchClick,
-  isKillSwitchActive
+  exchangeCount
 }: SidebarProps) {
   const menuItems = [
     { id: 'users', label: 'Users', icon: Users, badge: userCount },
@@ -82,19 +78,6 @@ export default function Sidebar({
 
       {/* Bottom Actions */}
       <div className="p-4 border-t border-[#1e2638] space-y-3" id="sidebar-bottom">
-        {/* Kill Switch Button */}
-        <button
-          id="kill-switch-btn"
-          onClick={onKillSwitchClick}
-          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-xs tracking-wider uppercase transition-all shadow-md cursor-pointer ${
-            isKillSwitchActive
-              ? 'bg-emerald-600 hover:bg-emerald-500 text-white animate-pulse'
-              : 'bg-[#dc2626] hover:bg-red-500 text-white hover:shadow-red-500/10'
-          }`}
-        >
-          <ShieldAlert className="w-4 h-4" />
-          {isKillSwitchActive ? 'Reset Kill Switch' : 'Kill Switch'}
-        </button>
 
         {/* Current Admin Session User Card */}
         <div className="bg-[#121824] border border-[#1e2638] rounded-lg p-3 flex items-center justify-between" id="admin-user-card">

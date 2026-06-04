@@ -21,7 +21,7 @@ import {
   MOCK_REFERRALS,
   INITIAL_EXCHANGES
 } from './data';
-import { ShieldAlert, Check, X, AlertTriangle, Play } from 'lucide-react';
+import { Check, X, AlertTriangle, Play } from 'lucide-react';
 
 export default function App() {
   // Navigation & Drill down context
@@ -40,9 +40,7 @@ export default function App() {
   const [spendEvents, setSpendEvents] = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
   const [dailyBurn, setDailyBurn] = useState<DailyBurn[]>(INITIAL_DAILY_BURN);
 
-  // Emergency Kill Switch trigger state
-  const [isKillSwitchActive, setIsKillSwitchActive] = useState(false);
-  const [showKillSwitchConfirm, setShowKillSwitchConfirm] = useState(false);
+
 
   // Mutation Engine (Tracks pending bot modifications or status updates before committing)
   const [originalBots, setOriginalBots] = useState<Bot[]>(INITIAL_BOTS);
@@ -177,48 +175,7 @@ export default function App() {
     setTimeout(() => setGeneralToast(null), 3000);
   };
 
-  // Activate EMERGENCY MASS COLD SWITCH
-  const handleConfirmKillSwitch = () => {
-    setIsKillSwitchActive(true);
-    setShowKillSwitchConfirm(false);
 
-    // Halt all bots!
-    setBots(prev => prev.map(b => ({ ...b, status: 'PAUSED', pauseReason: 'EMERGENCY COLD HALT TRIGGERED' })));
-
-    const now = new Date();
-    const timeStr = now.toTimeString().split(' ')[0];
-    const newActivity: AdminActivity = {
-      timestamp: timeStr,
-      message: `🔴 COLD STOP ORDER: EMERGENCY KILL SWITCH PRESSED. Halting all container channels!`,
-      admin: '@admin_jack'
-    };
-    setAdminActivities(prev => [newActivity, ...prev]);
-
-    setGeneralToast('EMERGENCY KILL SWITCH: HALTED ALL ACTIVE TRADING BOTS IMMEDIATELY.');
-    setTimeout(() => setGeneralToast(null), 4000);
-  };
-
-  // Disable / Reset Emergency Stop Switch
-  const handleResetKillSwitch = () => {
-    setIsKillSwitchActive(false);
-
-    // Re-active standard bots
-    setBots(INITIAL_BOTS);
-    setOriginalBots(INITIAL_BOTS);
-    setPendingChanges({});
-
-    const now = new Date();
-    const timeStr = now.toTimeString().split(' ')[0];
-    const newActivity: AdminActivity = {
-      timestamp: timeStr,
-      message: `🟢 EMERGENCY SYSTEM OVERRIDE: Kill switch reset. Resuming scheduler channels.`,
-      admin: '@admin_jack'
-    };
-    setAdminActivities(prev => [newActivity, ...prev]);
-
-    setGeneralToast('Emergency status cleared. Bot nodes scheduler restored.');
-    setTimeout(() => setGeneralToast(null), 3000);
-  };
 
   // Dummy action for export csv click
   const handleExportCsvClick = () => {
@@ -249,37 +206,12 @@ export default function App() {
         setCurrentView={setCurrentView}
         userCount={users.length}
         exchangeCount={exchanges.length}
-        onKillSwitchClick={() => {
-          if (isKillSwitchActive) {
-            handleResetKillSwitch();
-          } else {
-            setShowKillSwitchConfirm(true);
-          }
-        }}
-        isKillSwitchActive={isKillSwitchActive}
       />
 
       {/* 2. MAIN COGNITIVE SCREEN CARDS PANELS */}
       <main className="flex-1 overflow-y-auto flex flex-col h-full bg-[#080c14] relative pb-28" id="quant-main-workspace">
         
-        {/* Flashing Kill-Switch Global Warning overlay */}
-        {isKillSwitchActive && (
-          <div className="bg-rose-950/80 border-b border-rose-600/30 text-rose-200 px-6 py-3.5 flex items-center justify-between text-xs font-mono animate-pulse shrink-0 select-none">
-            <div className="flex items-center gap-2.5">
-              <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0" />
-              <div>
-                <span className="font-bold text-white uppercase tracking-wider block">EMERGENCY SYSTEM SUSPENSION IN PROGRESS</span>
-                <span>The system-wide Kill Switch is active. All bot API calls are blocked. Schedule algorithms are frozen.</span>
-              </div>
-            </div>
-            <button
-              onClick={handleResetKillSwitch}
-              className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded uppercase tracking-wider text-[10px] transition-colors cursor-pointer"
-            >
-              System Override Reset
-            </button>
-          </div>
-        )}
+
 
         {/* Global Floating Success Action Toasts */}
         {generalToast && (
@@ -450,52 +382,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-      {/* EMERGENCY STOP CONFIRMATION MODAL */}
-      {showKillSwitchConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs select-none" id="kill-switch-modal-overlay">
-          <div className="bg-[#121824] border-2 border-red-650/40 rounded-xl w-full max-w-md overflow-hidden shadow-2xl animate-scale-in" id="kill-switch-alert-box">
-            {/* Modal Header */}
-            <div className="bg-[#0f111a] border-b border-red-500/15 p-5 flex items-center gap-2.5 text-red-500 font-mono text-xs font-bold tracking-wider">
-              <ShieldAlert className="w-5 h-5" />
-              <span>EMERGENCY SUSPENSION ORDER</span>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-5 space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg shrink-0 mt-0.5">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold font-sans text-white">Activate System-Wide Kill Switch?</h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    This is an immediate system-wide instruction. Pressing this will immediately halts API calls for all <span className="text-white font-bold">{bots.length} active bots</span>, freezing DCA algorithms and position schedules.
-                  </p>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1e2638]" id="kill-switch-modal-buttons">
-                <button
-                  type="button"
-                  onClick={() => setShowKillSwitchConfirm(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-450 hover:text-white bg-slate-800 hover:bg-slate-750 transition-colors cursor-pointer font-sans"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmKillSwitch}
-                  className="px-4 py-2 rounded-lg text-xs font-bold bg-[#dc2626] hover:bg-red-500 text-white uppercase tracking-wider transition-colors cursor-pointer font-sans shadow-md"
-                >
-                  Confirm Halt Order
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
