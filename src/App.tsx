@@ -6,8 +6,9 @@ import UserProfileView from './components/UserProfileView';
 import StrategiesView from './components/StrategiesView';
 import BotDetailView from './components/BotDetailView';
 import { AffiliateView, AuditLogView, SettingsView } from './components/ExtraViews';
+import ExchangesView from './components/ExchangesView';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity } from './types';
+import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange } from './types';
 import {
   INITIAL_USERS,
   INITIAL_BOTS,
@@ -17,7 +18,8 @@ import {
   MOCK_CU_HISTORY,
   MOCK_API_KEYS,
   MOCK_PAYMENTS,
-  MOCK_REFERRALS
+  MOCK_REFERRALS,
+  INITIAL_EXCHANGES
 } from './data';
 import { ShieldAlert, Check, X, AlertTriangle, Play } from 'lucide-react';
 
@@ -32,6 +34,7 @@ export default function App() {
   const [bots, setBots] = useState<Bot[]>(INITIAL_BOTS);
   const [cuHistory, setCuHistory] = useState<Record<string, CUHistoryRecord[]>>(MOCK_CU_HISTORY);
   const [adminActivities, setAdminActivities] = useState<AdminActivity[]>(INITIAL_ADMIN_ACTIVITY);
+  const [exchanges, setExchanges] = useState<Exchange[]>(INITIAL_EXCHANGES);
 
   // Spend and burn states
   const [spendEvents, setSpendEvents] = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
@@ -253,6 +256,7 @@ export default function App() {
         currentView={currentView}
         setCurrentView={setCurrentView}
         userCount={users.length}
+        exchangeCount={exchanges.length}
         onKillSwitchClick={() => {
           if (isKillSwitchActive) {
             handleResetKillSwitch();
@@ -385,8 +389,34 @@ export default function App() {
                     }}
                   />
                 );
+              case 'exchanges':
+                return (
+                  <ExchangesView
+                    exchanges={exchanges}
+                    setExchanges={setExchanges}
+                    onAddLog={(msg) => {
+                      const now = new Date();
+                      const timeStr = now.toTimeString().split(' ')[0];
+                      setAdminActivities(prev => [
+                        { timestamp: timeStr, message: msg, admin: '@admin_jack' },
+                        ...prev
+                      ]);
+                    }}
+                  />
+                );
               case 'settings':
-                return <SettingsView />;
+                return (
+                  <SettingsView
+                    onAddLog={(msg) => {
+                      const now = new Date();
+                      const timeStr = now.toTimeString().split(' ')[0];
+                      setAdminActivities(prev => [
+                        { timestamp: timeStr, message: msg, admin: '@admin_jack' },
+                        ...prev
+                      ]);
+                    }}
+                  />
+                );
               default:
                 return (
                   <CuReportsView

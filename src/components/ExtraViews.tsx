@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, ScrollText, Settings, ShieldAlert, Check, RefreshCw, Key, ToggleLeft, ToggleRight, Radio, Landmark, UserPlus, Coins, Percent } from 'lucide-react';
+import { Share2, ScrollText, Settings, ShieldAlert, Check, RefreshCw, Key, ToggleLeft, ToggleRight, Radio, Landmark, UserPlus, Coins, Percent, AlertTriangle } from 'lucide-react';
 import { AdminActivity } from '../types';
 
 /* ============================================================================
@@ -139,106 +139,86 @@ export function AuditLogView({ logs, onAddLog }: AuditLogProps) {
 /* ============================================================================
    3. SETTINGS VIEW
    ============================================================================ */
-export function SettingsView() {
-  const [debugMode, setDebugMode] = useState(true);
-  const [latencyTolerance, setLatencyTolerance] = useState(500);
-  const [isSaved, setIsSaved] = useState(false);
+interface SettingsViewProps {
+  onAddLog: (message: string) => void;
+}
 
-  const handleSaveSettings = () => {
+export function SettingsView({ onAddLog }: SettingsViewProps) {
+  const [publicIp, setPublicIp] = useState('188.166.42.102');
+  const [isSaved, setIsSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const isValidIp = (ip: string) => {
+    const ipv4Regex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+    const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+    return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+  };
+
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    if (!publicIp.trim()) {
+      setErrorMsg('Public IP address cannot be empty.');
+      return;
+    }
+    if (!isValidIp(publicIp.trim())) {
+      setErrorMsg('Invalid IP address format. Please enter a valid IPv4 or IPv6 address.');
+      return;
+    }
+
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+    onAddLog(`Updated system public IP configuration: ${publicIp.trim()}`);
+    setTimeout(() => setIsSaved(false), 3000);
   };
 
   return (
     <div className="space-y-6" id="settings-view">
       <h2 className="text-2xl font-display font-medium text-white tracking-tight">System Settings</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Core Settings card */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider font-mono">QuantAdmin Configurations</h3>
+      <div className="max-w-xl">
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-6 space-y-4 shadow-lg">
+          <h3 className="text-sm font-semibold text-slate-350 uppercase tracking-wider font-mono">Public IP Configuration</h3>
+          <p className="text-xs text-slate-450 leading-relaxed font-sans">
+            Specify the static public IP address of the node server. This IP is used to establish whitelist rules on exchange API gateways and secure RPC container endpoints.
+          </p>
 
-          {/* Debug mode toggle */}
-          <div className="flex items-center justify-between py-2 border-b border-[#1e2638]/50">
-            <div>
-              <div className="text-xs font-semibold text-slate-200">Global Mutation Logs</div>
-              <div className="text-[10px] text-slate-501 mt-0.5">Publish all state adjustments to Telegram webhooks</div>
+          <form onSubmit={handleSaveSettings} className="space-y-4 pt-2">
+            {errorMsg && (
+              <div className="bg-[#2c1414] border border-red-500/20 text-red-400 px-3.5 py-2.5 rounded-lg text-xs font-sans flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="public-ip-input">
+                Server Public IP
+              </label>
+              <input
+                id="public-ip-input"
+                type="text"
+                value={publicIp}
+                onChange={(e) => setPublicIp(e.target.value)}
+                placeholder="e.g. 188.166.42.102"
+                className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white placeholder-slate-655 focus:outline-none focus:border-blue-500 font-mono transition-all"
+              />
             </div>
-            <button
-              onClick={() => setDebugMode(!debugMode)}
-              className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              {debugMode ? (
-                <ToggleRight className="w-8 h-8 text-blue-500" />
-              ) : (
-                <ToggleLeft className="w-8 h-8 text-slate-600" />
-              )}
-            </button>
-          </div>
 
-          {/* Latency Threshold */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-200" htmlFor="latency-slider">Max SLA Latency Threshold</label>
-              <span className="text-xs font-mono text-blue-400 font-bold">{latencyTolerance} ms</span>
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-lg text-xs transition-colors cursor-pointer shadow-md"
+              >
+                Save Configuration
+              </button>
             </div>
-            <input
-              id="latency-slider"
-              type="range"
-              min="100"
-              max="2000"
-              step="50"
-              value={latencyTolerance}
-              onChange={(e) => setLatencyTolerance(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer tracking-normal"
-            />
-            <div className="text-[10px] text-slate-500 font-mono">Triggers ANOMALY flags if response drops below SLA</div>
-          </div>
-
-          {/* Save button */}
-          <div className="pt-3 border-t border-[#1e2638]">
-            <button
-              onClick={handleSaveSettings}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors cursor-pointer"
-            >
-              Save Configurations
-            </button>
-          </div>
+          </form>
 
           {isSaved && (
-            <div className="bg-[#14232c] text-teal-400 border border-teal-505/20 px-3 py-2 rounded-lg text-[11px] font-mono flex items-center gap-2 animate-fade-in">
-              <Check className="w-3.5 h-3.5" /> Settings updated successfully.
+            <div className="bg-[#14232c] text-teal-400 border border-teal-505/20 px-3.5 py-2.5 rounded-lg text-[11px] font-mono flex items-center gap-2">
+              <Check className="w-3.5 h-3.5" /> Public IP updated successfully.
             </div>
           )}
-        </div>
-
-        {/* RPC connection health */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider font-mono">RPC Node Connections</h3>
-
-          <div className="space-y-3.5 text-xs font-mono">
-            <div className="flex justify-between items-center bg-[#0c101a] border border-[#1e2638] p-3 rounded-lg">
-              <div className="space-y-0.5">
-                <span className="font-bold text-white block">Binance API Spot Node</span>
-                <span className="text-[10px] text-slate-505">wss://stream.binance.com:9443</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-emerald-450 font-bold text-[10px]">
-                <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                <span>12ms</span>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center bg-[#0c101a] border border-[#1e2638] p-3 rounded-lg">
-              <div className="space-y-0.5">
-                <span className="font-bold text-white block">Kraken High Speed RPC</span>
-                <span className="text-[10px] text-slate-505">wss://ws.kraken.com/perf</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-emerald-405 font-bold text-[10px]">
-                <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                <span>45ms</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

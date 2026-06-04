@@ -1,10 +1,11 @@
 import React from 'react';
-import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ShieldAlert, ChevronDown, Check } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ShieldAlert, ChevronDown, Check, Landmark } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
   setCurrentView: (view: string) => void;
   userCount: number;
+  exchangeCount: number;
   onKillSwitchClick: () => void;
   isKillSwitchActive: boolean;
 }
@@ -13,11 +14,13 @@ export default function Sidebar({
   currentView,
   setCurrentView,
   userCount,
+  exchangeCount,
   onKillSwitchClick,
   isKillSwitchActive
 }: SidebarProps) {
   const menuItems = [
     { id: 'users', label: 'Users', icon: Users, badge: userCount },
+    { id: 'exchanges', label: 'Exchanges', icon: Landmark, badge: exchangeCount },
     { id: 'strategies', label: 'Strategies', icon: Cpu },
     { id: 'cu_reports', label: 'CU Reports', icon: FileSpreadsheet },
     { id: 'affiliate', label: 'Affiliate', icon: Share2 },

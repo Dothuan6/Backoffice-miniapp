@@ -81,3 +81,11 @@ export interface ReferralsInfo {
     earningsCu: number;
   }[];
 }
+
+export interface Exchange {
+  id: string;
+  name: string;
+  image: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  guideUrl: string;
+}
