@@ -35,8 +35,8 @@ export default function BotDetailView({
   return (
     <div className="space-y-6" id="bot-detail-view">
       {/* Breadcrumbs navigation matching Screenshot 5 */}
-      <div className="flex items-center justify-between text-xs font-mono text-slate-500" id="bot-breadcrumbs">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-slate-500" id="bot-breadcrumbs">
+        <div className="flex items-center gap-2 overflow-x-auto shrink-0">
           <button onClick={onBackToStrategies} className="hover:text-blue-400 cursor-pointer text-slate-400 font-semibold flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
@@ -63,7 +63,7 @@ export default function BotDetailView({
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-display font-bold text-white tracking-tight">{bot.name}</h2>
+                <h2 className="text-xl md:text-2xl font-display font-bold text-white tracking-tight">{bot.name}</h2>
                 <button
                   id="detail-status-toggle"
                   onClick={onToggleStatus}

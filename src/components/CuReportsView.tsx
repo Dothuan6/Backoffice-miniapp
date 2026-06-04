@@ -60,9 +60,9 @@ export default function CuReportsView({
   return (
     <div className="space-y-6" id="cu-reports-view">
       {/* Title */}
-      <div className="flex items-center justify-between" id="cu-reports-header">
-        <h2 className="text-2xl font-display font-medium text-white tracking-tight">CU Usage Overview</h2>
-        <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5 bg-[#121824] px-3 py-1.5 rounded-lg border border-[#1e2638]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3" id="cu-reports-header">
+        <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">CU Usage Overview</h2>
+        <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5 bg-[#121824] px-3 py-1.5 rounded-lg border border-[#1e2638] self-start sm:self-auto">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
           Live reports syncing...
         </div>
@@ -250,10 +250,10 @@ export default function CuReportsView({
             )}
           </div>
 
-          {/* Time axis label */}
-          <div className="flex justify-between items-center px-8 border-t border-[#1e2638] pt-3 text-[11px] text-slate-500 font-mono" id="time-axis-labels">
+          {/* Time axis label - scrollable on mobile */}
+          <div className="flex justify-between items-center px-2 sm:px-8 border-t border-[#1e2638] pt-3 text-[10px] sm:text-[11px] text-slate-500 font-mono overflow-x-auto gap-2" id="time-axis-labels">
             {dailyBurn.map((d, index) => (
-              <span key={index}>{d.time}</span>
+              <span key={index} className="shrink-0">{d.time}</span>
             ))}
           </div>
         </div>

@@ -209,7 +209,7 @@ export default function App() {
       />
 
       {/* 2. MAIN COGNITIVE SCREEN CARDS PANELS */}
-      <main className="flex-1 overflow-y-auto flex flex-col h-full bg-[#080c14] relative pb-28" id="quant-main-workspace">
+      <main className="flex-1 overflow-y-auto flex flex-col h-full bg-[#080c14] relative pb-28 pt-14 md:pt-0" id="quant-main-workspace">
         
 
 
@@ -227,7 +227,7 @@ export default function App() {
         )}
 
         {/* Dynamic Inner Layout Body */}
-        <div className="p-6 md:p-8 flex-1 max-w-7xl w-full mx-auto" id="inner-workspace-container">
+        <div className="p-4 md:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto" id="inner-workspace-container">
           {(() => {
             switch (currentView) {
               case 'cu_reports':

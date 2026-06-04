@@ -59,8 +59,8 @@ export default function UserProfileView({
   return (
     <div className="space-y-6" id="user-profile-view">
       {/* Breadcrumbs */}
-      <div className="flex items-center justify-between text-xs font-mono text-slate-505" id="profile-breadcrumbs">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between text-xs font-mono text-slate-505 overflow-x-auto" id="profile-breadcrumbs">
+        <div className="flex items-center gap-2 shrink-0">
           <button onClick={onBackToList} className="hover:text-blue-400 font-semibold cursor-pointer flex items-center gap-1 text-slate-400">
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
@@ -74,7 +74,7 @@ export default function UserProfileView({
       </div>
 
       {/* Header and Back button */}
-      <div className="flex items-center gap-4 border-b border-[#1e2638] pb-4">
+      <div className="flex items-center gap-3 md:gap-4 border-b border-[#1e2638] pb-4">
         <button
           onClick={onBackToList}
           className="w-9 h-9 rounded-lg bg-slate-800 border border-[#1e2638] flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
@@ -82,7 +82,7 @@ export default function UserProfileView({
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div>
-          <h2 className="text-2xl font-display font-medium text-white tracking-tight">User Profile</h2>
+          <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">User Profile</h2>
           <p className="text-xs text-slate-500 font-mono">Manage trading attributes for {user.username}</p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function UserProfileView({
               }`}></span>
             </div>
             <div className="space-y-1">
-              <h3 className="text-xl font-display font-bold text-white leading-none">{user.username}</h3>
+              <h3 className="text-lg md:text-xl font-display font-bold text-white leading-none">{user.username}</h3>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-slate-405">
                 <div className="flex items-center gap-1 group">
                   <span>UUID: <span className="text-slate-300">{user.uuid}</span></span>
@@ -119,7 +119,7 @@ export default function UserProfileView({
                 <span>•</span>
                 <span>Telegram ID: <span className="text-slate-200">{user.telegramId}</span></span>
               </div>
-              <div className="flex items-center gap-2 mt-2 bg-[#0c101a] border border-[#1e2638] rounded-lg px-3 py-1.5 w-fit max-w-full text-xs font-mono text-slate-400">
+              <div className="flex items-center gap-2 mt-2 bg-[#0c101a] border border-[#1e2638] rounded-lg px-3 py-1.5 w-fit max-w-full text-xs font-mono text-slate-400 overflow-x-auto">
                 <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider select-none mr-1">AFFILIATE LINK:</span>
                 <span className="text-blue-400 hover:underline select-all truncate">https://quantadmin.app/register?ref={user.referralCode}</span>
                 <button
@@ -173,10 +173,10 @@ export default function UserProfileView({
       </div>
 
       {/* Tabs Control Header */}
-      <div className="border-b border-[#1e2638] flex flex-wrap" id="profile-tabs-header">
+      <div className="border-b border-[#1e2638] flex flex-nowrap overflow-x-auto" id="profile-tabs-header">
         <button
           onClick={() => setActiveTab('strategies')}
-          className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`px-4 md:px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'strategies'
               ? 'border-blue-500 text-blue-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -186,7 +186,7 @@ export default function UserProfileView({
         </button>
         <button
           onClick={() => setActiveTab('cu_history')}
-          className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`px-4 md:px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'cu_history'
               ? 'border-blue-500 text-blue-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -196,7 +196,7 @@ export default function UserProfileView({
         </button>
         <button
           onClick={() => setActiveTab('api_keys')}
-          className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`px-4 md:px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'api_keys'
               ? 'border-blue-500 text-blue-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -206,7 +206,7 @@ export default function UserProfileView({
         </button>
         <button
           onClick={() => setActiveTab('payments')}
-          className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`px-4 md:px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'payments'
               ? 'border-blue-500 text-blue-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -216,7 +216,7 @@ export default function UserProfileView({
         </button>
         <button
           onClick={() => setActiveTab('referrals')}
-          className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`px-4 md:px-5 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'referrals'
               ? 'border-blue-500 text-blue-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'

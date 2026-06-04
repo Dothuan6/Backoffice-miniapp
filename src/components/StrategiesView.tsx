@@ -121,7 +121,7 @@ export default function StrategiesView({
   return (
     <div className="space-y-6" id="strategies-view-panel">
       {/* Page Title */}
-      <h2 className="text-2xl font-display font-medium text-white tracking-tight">Strategies Management</h2>
+      <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">Strategies Management</h2>
 
       {/* Stats Summary Cards (replicates top cards of Screenshot 4) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="strategies-top-cards">
@@ -241,13 +241,13 @@ export default function StrategiesView({
           <table className="w-full text-left border-collapse" id="strategies-management-table">
             <thead>
               <tr className="bg-[#0c101a] text-[10px] font-mono tracking-wider text-slate-405 border-b border-[#1e2638] select-none">
-                <th className="py-3 px-6 font-semibold uppercase">Status</th>
-                <th className="py-3 px-6 font-semibold uppercase">Ticker</th>
-                <th className="py-3 px-6 font-semibold uppercase">User</th>
-                <th className="py-3 px-6 font-semibold uppercase">Exchange</th>
-                <th className="py-3 px-6 font-semibold uppercase">Cycle #</th>
-                <th className="py-3 px-6 font-semibold uppercase">Pause Reason</th>
-                <th className="py-3 px-6 text-right font-semibold uppercase">Actions</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Status</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Ticker</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">User</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Exchange</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Cycle #</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Pause Reason</th>
+                <th className="py-3 px-4 md:px-6 text-right font-semibold uppercase whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1e2638] text-sm">
@@ -259,37 +259,37 @@ export default function StrategiesView({
                     className="hover:bg-[#161d2d]/35 transition-colors duration-150"
                   >
                     {/* Status badge */}
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-4 md:px-6">
                       {renderStatusBadge(bot.status)}
                     </td>
 
                     {/* Ticker drill-down link */}
-                    <td className="py-4 px-6 font-bold text-[#3b82f6] hover:text-blue-400 cursor-pointer" onClick={() => onViewBotDetail(bot.id)}>
+                    <td className="py-4 px-4 md:px-6 font-bold text-[#3b82f6] hover:text-blue-400 cursor-pointer whitespace-nowrap" onClick={() => onViewBotDetail(bot.id)}>
                       {bot.ticker}
                     </td>
 
                     {/* User profile username */}
-                    <td className="py-4 px-6 text-xs font-mono text-slate-300">
+                    <td className="py-4 px-4 md:px-6 text-xs font-mono text-slate-300 whitespace-nowrap">
                       {bot.userId}
                     </td>
 
                     {/* Exhcange with mini icon */}
-                    <td className="py-4 px-6">
+                    <td className="py-4 px-4 md:px-6 whitespace-nowrap">
                       {renderExchangeLabel(bot.exchange)}
                     </td>
 
                     {/* Cycle # */}
-                    <td className="py-4 px-6 text-xs font-mono text-slate-350">
+                    <td className="py-4 px-4 md:px-6 text-xs font-mono text-slate-350 whitespace-nowrap">
                       #{bot.cycleCount.toLocaleString()}
                     </td>
 
                     {/* Pause cause */}
-                    <td className="py-4 px-6 text-xs font-sans text-slate-400">
+                    <td className="py-4 px-4 md:px-6 text-xs font-sans text-slate-400 whitespace-nowrap">
                       {bot.pauseReason}
                     </td>
 
                     {/* Action toggles */}
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-4 md:px-6 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2 text-slate-450">
                         {/* Detail Inspector Magnifying icon */}
                         <button

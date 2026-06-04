@@ -29,3 +29,36 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Hide scrollbar on horizontal-scroll tab bars (mobile) */
+#profile-tabs-header::-webkit-scrollbar {
+  display: none;
+}
+#profile-tabs-header {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile safe area padding for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  #mobile-topbar {
+    padding-top: env(safe-area-inset-top);
+  }
+  #global-sticky-mutation-bar,
+  #mutation-action-footer-sticky {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Ensure minimum touch target sizes on mobile */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+  
+  /* Tighter padding on mobile table cells */
+  td, th {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

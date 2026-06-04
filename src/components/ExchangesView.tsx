@@ -143,7 +143,7 @@ export default function ExchangesView({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-display font-medium text-white tracking-tight">Exchange Management</h2>
+          <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">Exchange Management</h2>
           <p className="text-xs text-slate-400 mt-1 font-sans">
             Configure, deploy, and adjust active exchanges and their API instructions.
           </p>
@@ -159,7 +159,7 @@ export default function ExchangesView({
       </div>
 
       {/* Toolbar */}
-      <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-4 flex items-center justify-between gap-4 shadow-lg">
+      <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-lg">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input

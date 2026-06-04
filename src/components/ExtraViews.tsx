@@ -24,9 +24,9 @@ export function AuditLogView({ logs, onAddLog }: AuditLogProps) {
 
   return (
     <div className="space-y-6" id="audit-log-view">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-display font-medium text-white tracking-tight">Audit Log</h2>
-        <span className="text-xs font-mono text-slate-500 bg-[#121824] px-2.5 py-1.5 rounded-lg border border-[#1e2638]">System authorized sessions</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">Audit Log</h2>
+        <span className="text-xs font-mono text-slate-500 bg-[#121824] px-2.5 py-1.5 rounded-lg border border-[#1e2638] self-start sm:self-auto">System authorized sessions</span>
       </div>
 
       {/* Searching toolbar */}
@@ -42,6 +42,7 @@ export function AuditLogView({ logs, onAddLog }: AuditLogProps) {
 
       {/* Main logs list */}
       <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden shadow-xl">
+        <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs font-mono">
           <thead>
             <tr className="bg-[#0c101a] border-b border-[#1e2638] text-[9px] text-slate-405 tracking-wider uppercase select-none">
@@ -60,6 +61,7 @@ export function AuditLogView({ logs, onAddLog }: AuditLogProps) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
@@ -102,7 +104,7 @@ export function SettingsView({ onAddLog }: SettingsViewProps) {
 
   return (
     <div className="space-y-6" id="settings-view">
-      <h2 className="text-2xl font-display font-medium text-white tracking-tight">System Settings</h2>
+      <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">System Settings</h2>
 
       <div className="max-w-xl">
         <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-6 space-y-4 shadow-lg">
