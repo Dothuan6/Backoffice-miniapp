@@ -23,7 +23,6 @@ export default function Sidebar({
     { id: 'exchanges', label: 'Exchanges', icon: Landmark, badge: exchangeCount },
     { id: 'strategies', label: 'Strategies', icon: Cpu },
     { id: 'cu_reports', label: 'CU Reports', icon: FileSpreadsheet },
-    { id: 'affiliate', label: 'Affiliate', icon: Share2 },
     { id: 'audit_log', label: 'Audit Log', icon: ScrollText },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];

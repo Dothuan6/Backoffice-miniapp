@@ -119,7 +119,19 @@ export default function UserProfileView({
                 <span>•</span>
                 <span>Telegram ID: <span className="text-slate-200">{user.telegramId}</span></span>
               </div>
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2 mt-2 bg-[#0c101a] border border-[#1e2638] rounded-lg px-3 py-1.5 w-fit max-w-full text-xs font-mono text-slate-400">
+                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider select-none mr-1">AFFILIATE LINK:</span>
+                <span className="text-blue-400 hover:underline select-all truncate">https://quantadmin.app/register?ref={user.referralCode}</span>
+                <button
+                  onClick={() => handleCopy(`https://quantadmin.app/register?ref=${user.referralCode}`, 'affLink')}
+                  className="hover:text-white p-0.5 shrink-0 ml-1.5 transition-colors cursor-pointer"
+                  title="Copy Affiliate Link"
+                >
+                  {copiedText === 'affLink' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <div className="flex items-center gap-2 pt-2">
+
                 <span className="bg-emerald-950/40 text-emerald-400 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border border-emerald-500/20">
                   Status {user.status}
                 </span>

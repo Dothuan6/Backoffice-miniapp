@@ -1,79 +1,8 @@
 import React, { useState } from 'react';
-import { Share2, ScrollText, Settings, ShieldAlert, Check, RefreshCw, Key, ToggleLeft, ToggleRight, Radio, Landmark, UserPlus, Coins, Percent, AlertTriangle } from 'lucide-react';
+import { ScrollText, Settings, ShieldAlert, Check, RefreshCw, Key, ToggleLeft, ToggleRight, Radio, Landmark, AlertTriangle } from 'lucide-react';
 import { AdminActivity } from '../types';
 
-/* ============================================================================
-   1. AFFILIATE VIEW
-   ============================================================================ */
-interface AffiliateProps {
-  referralStatsSummary: {
-    code: string;
-    totalEarningsUsd: number;
-    commissionRate: number;
-    clicks: number;
-    signups: number;
-  };
-}
 
-export function AffiliateView({ referralStatsSummary }: AffiliateProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(referralStatsSummary.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="space-y-6" id="affiliate-view">
-      <h2 className="text-2xl font-display font-medium text-white tracking-tight">Affiliate Program</h2>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 text-center">
-          <UserPlus className="w-5 h-5 text-blue-400 mx-auto mb-2" />
-          <span className="text-[10px] text-slate-500 font-mono uppercase block">Total Signups</span>
-          <span className="text-2xl font-display font-bold text-white font-mono">{referralStatsSummary.signups}</span>
-        </div>
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 text-center">
-          <Coins className="w-5 h-5 text-emerald-450 mx-auto mb-2" />
-          <span className="text-[10px] text-slate-505 font-mono uppercase block">Total Earnings</span>
-          <span className="text-2xl font-display font-bold text-emerald-400 font-mono">${referralStatsSummary.totalEarningsUsd.toLocaleString()}</span>
-        </div>
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 text-center">
-          <Percent className="w-5 h-5 text-cyan-400 mx-auto mb-2" />
-          <span className="text-[10px] text-slate-505 font-mono uppercase block">Commission Rate</span>
-          <span className="text-2xl font-display font-bold text-cyan-400 font-mono">{referralStatsSummary.commissionRate}%</span>
-        </div>
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 text-center">
-          <Share2 className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-          <span className="text-[10px] text-slate-505 font-mono uppercase block">Total Link Clicks</span>
-          <span className="text-2xl font-display font-bold text-purple-400 font-mono">{referralStatsSummary.clicks}</span>
-        </div>
-      </div>
-
-      {/* Share Link card */}
-      <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider font-mono">YOUR UNIQUE REFERRAL CODE</h3>
-        <p className="text-xs text-slate-400 max-w-xl">
-          Invite other high-frequency traders or bot masters to QuantAdmin. Earn {referralStatsSummary.commissionRate}% lifetime recurring commissions on all Compute Unit (CU) snapshot deposit purchases.
-        </p>
-
-        <div className="flex max-w-sm">
-          <div className="bg-[#0c101a] border border-[#1e2638] border-r-0 rounded-l-lg px-4 py-2.5 flex-1 font-mono text-sm text-blue-400 font-bold tracking-widest select-all flex items-center">
-            {referralStatsSummary.code}
-          </div>
-          <button
-            onClick={handleCopyCode}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 text-xs uppercase tracking-wide rounded-r-lg transition-colors cursor-pointer shrink-0"
-          >
-            {copied ? 'Copied!' : 'Copy Code'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ============================================================================
    2. AUDIT LOG VIEW

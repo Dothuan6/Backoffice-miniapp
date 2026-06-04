@@ -5,7 +5,7 @@ import UsersView from './components/UsersView';
 import UserProfileView from './components/UserProfileView';
 import StrategiesView from './components/StrategiesView';
 import BotDetailView from './components/BotDetailView';
-import { AffiliateView, AuditLogView, SettingsView } from './components/ExtraViews';
+import { AuditLogView, SettingsView } from './components/ExtraViews';
 import ExchangesView from './components/ExchangesView';
 
 import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange } from './types';
@@ -229,14 +229,6 @@ export default function App() {
     }, 4500);
   };
 
-  // Auxiliary data values for extra pages
-  const referralStatsSummary = {
-    code: 'DAN88QUANT',
-    totalEarningsUsd: 1850,
-    commissionRate: 15,
-    clicks: 1420,
-    signups: 68
-  };
 
   // Retrieve details for inspected bot
   const activeBotObject = useMemo(() => {
@@ -370,10 +362,6 @@ export default function App() {
                     onBackToStrategies={() => setCurrentView('strategies')}
                     onToggleStatus={() => handleToggleBotStatus(activeBotObject.id)}
                   />
-                );
-              case 'affiliate':
-                return (
-                  <AffiliateView referralStatsSummary={referralStatsSummary} />
                 );
               case 'audit_log':
                 return (
