@@ -14,9 +14,12 @@ export interface User {
   locked?: boolean;
 }
 
+export type BotType = 'Trailing DCA' | 'Grid' | 'Arbitrage' | 'Scalper' | 'DCA' | 'Martingale';
+
 export interface Bot {
   id: string;
   name: string;
+  botType: BotType;
   ticker: string;
   userId: string;
   exchange: string;
@@ -49,6 +52,7 @@ export interface CUHistoryRecord {
   type: 'SPENT' | 'ADJUST' | 'REFUND' | 'BONUS';
   amount: number;
   description: string;
+  botType?: BotType;
 }
 
 export interface UserApiKey {

@@ -171,7 +171,12 @@ export default function UserProfileView({
               </div>
               <span className="text-xs text-slate-400 block mt-1">Compute Units Available</span>
             </div>
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400 text-xs font-bold">CU</div>
+            <div className="flex flex-col items-end gap-1">
+              <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-2.5 py-1.5 text-center">
+                <span className="text-[9px] font-semibold text-blue-300 uppercase tracking-wider block leading-none mb-0.5">Activities</span>
+                <span className="text-xs font-mono font-bold text-blue-400 leading-none">{user.cuBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })} CU</span>
+              </div>
+            </div>
           </div>
           <button
             id="adjust-cu-btn"
@@ -210,6 +215,7 @@ export default function UserProfileView({
               <thead>
                 <tr className="bg-[#0c101a] text-[10px] font-mono tracking-wider text-slate-500 border-b border-[#1e2638]">
                   <th className="py-3 px-6 font-semibold uppercase">Bot</th>
+                  <th className="py-3 px-6 font-semibold uppercase">Type</th>
                   <th className="py-3 px-6 font-semibold uppercase">ID</th>
                   <th className="py-3 px-6 font-semibold uppercase">Balance</th>
                   <th className="py-3 px-6 font-semibold uppercase">PL (24H)</th>
@@ -221,6 +227,11 @@ export default function UserProfileView({
                 {userBots.length > 0 ? userBots.map(bot => (
                   <tr key={bot.id} className="hover:bg-[#161d2d]/35 transition-colors">
                     <td className="py-3.5 px-6 font-semibold text-slate-200">{bot.name}</td>
+                    <td className="py-3.5 px-6">
+                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded border bg-violet-950/40 text-violet-300 border-violet-500/20 font-mono">
+                        {bot.botType}
+                      </span>
+                    </td>
                     <td className="py-3.5 px-6 font-mono text-slate-400 text-xs">{bot.id}</td>
                     <td className="py-3.5 px-6 font-mono text-slate-300 text-xs">{bot.balance}</td>
                     <td className="py-3.5 px-6">
@@ -317,19 +328,20 @@ export default function UserProfileView({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#0c101a] text-[10px] font-mono tracking-wider text-slate-500 border-b border-[#1e2638]">
-                  <th className="py-3 px-6 font-semibold uppercase">ID</th>
-                  <th className="py-3 px-6 font-semibold uppercase">Timestamp</th>
-                  <th className="py-3 px-6 font-semibold uppercase">Type</th>
-                  <th className="py-3 px-6 font-semibold uppercase">Amount (CU)</th>
-                  <th className="py-3 px-6 font-semibold uppercase">Description</th>
+                  <th className="py-3 px-5 font-semibold uppercase">ID</th>
+                  <th className="py-3 px-5 font-semibold uppercase">Timestamp</th>
+                  <th className="py-3 px-5 font-semibold uppercase">Type</th>
+                  <th className="py-3 px-5 font-semibold uppercase">Bot Type</th>
+                  <th className="py-3 px-5 font-semibold uppercase">Amount (CU)</th>
+                  <th className="py-3 px-5 font-semibold uppercase">Description</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e2638] text-sm font-mono">
                 {cuHistory && cuHistory.length > 0 ? cuHistory.map(hist => (
                   <tr key={hist.id} className="hover:bg-[#161d2d]/35 transition-colors">
-                    <td className="py-3.5 px-6 text-slate-500 text-xs">{hist.id}</td>
-                    <td className="py-3.5 px-6 text-slate-400 text-xs">{hist.timestamp}</td>
-                    <td className="py-3.5 px-6">
+                    <td className="py-3.5 px-5 text-slate-500 text-xs">{hist.id}</td>
+                    <td className="py-3.5 px-5 text-slate-400 text-xs">{hist.timestamp}</td>
+                    <td className="py-3.5 px-5">
                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${
                         hist.type === 'ADJUST' ? 'bg-blue-950/50 text-blue-400 border border-blue-500/10'
                         : hist.type === 'BONUS'  ? 'bg-purple-950/50 text-purple-400 border border-purple-500/10'
@@ -337,13 +349,22 @@ export default function UserProfileView({
                         : 'bg-rose-950/50 text-rose-400 border border-rose-500/10'
                       }`}>{hist.type}</span>
                     </td>
-                    <td className={`py-3.5 px-6 text-xs font-bold ${hist.amount >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <td className="py-3.5 px-5">
+                      {hist.botType ? (
+                        <span className="text-[9px] font-semibold px-2 py-0.5 rounded border bg-violet-950/40 text-violet-300 border-violet-500/20">
+                          {hist.botType}
+                        </span>
+                      ) : (
+                        <span className="text-slate-600 text-xs">—</span>
+                      )}
+                    </td>
+                    <td className={`py-3.5 px-5 text-xs font-bold ${hist.amount >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                       {hist.amount >= 0 ? `+${hist.amount.toLocaleString()}` : hist.amount.toLocaleString()} CU
                     </td>
-                    <td className="py-3.5 px-6 text-slate-300 text-xs max-w-sm truncate">{hist.description}</td>
+                    <td className="py-3.5 px-5 text-slate-300 text-xs max-w-xs truncate">{hist.description}</td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={5} className="py-10 text-center text-slate-400 text-xs">No activity recorded.</td></tr>
+                  <tr><td colSpan={6} className="py-10 text-center text-slate-400 text-xs">No activity recorded.</td></tr>
                 )}
               </tbody>
             </table>

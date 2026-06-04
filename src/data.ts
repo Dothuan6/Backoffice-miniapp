@@ -96,140 +96,23 @@ export const INITIAL_USERS: User[] = [
 
 export const INITIAL_BOTS: Bot[] = [
   // Bots for @cryptodan88
-  {
-    id: 'S-99201',
-    name: 'BTC Trend Follower v2',
-    ticker: 'BTC/USDT-GRID',
-    userId: '@cryptodan88',
-    exchange: 'Binance Spot',
-    cycleCount: 14291,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '0.842 BTC',
-    pl24h: 2.45
-  },
-  {
-    id: 'S-88392',
-    name: 'ETH/BTC Arbitrage',
-    ticker: 'ETH/PERP-ARB',
-    userId: '@cryptodan88',
-    exchange: 'Kraken',
-    cycleCount: 842,
-    pauseReason: '—',
-    status: 'PAUSED',
-    balance: '12.50 ETH',
-    pl24h: 0.00
-  },
-  {
-    id: 'S-77212',
-    name: 'Solana Volatility Scalp',
-    ticker: 'SOL/USDT-GRID',
-    userId: '@cryptodan88',
-    exchange: 'Binance Spot',
-    cycleCount: 1242,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '450.00 SOL',
-    pl24h: -0.12
-  },
-  {
-    id: 'S-11200',
-    name: 'AI Market Neutral Alpha',
-    ticker: 'BTC/USDT-GRID',
-    userId: '@cryptodan88',
-    exchange: 'Binance Spot',
-    cycleCount: 14291,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '5,000 USDT',
-    pl24h: 0.05
-  },
+  { id: 'S-99201', botType: 'Trailing DCA', name: 'BTC Trend Follower v2',  ticker: 'BTC/USDT',   userId: '@cryptodan88',   exchange: 'Binance Spot', cycleCount: 14291, pauseReason: '—', status: 'ACTIVE',  balance: '0.842 BTC',   pl24h:  2.45 },
+  { id: 'S-88392', botType: 'Arbitrage',    name: 'ETH/BTC Arbitrage',       ticker: 'ETH/BTC',    userId: '@cryptodan88',   exchange: 'Kraken',       cycleCount:   842, pauseReason: '—', status: 'PAUSED',  balance: '12.50 ETH',   pl24h:  0.00 },
+  { id: 'S-77212', botType: 'Scalper',      name: 'Solana Volatility Scalp', ticker: 'SOL/USDT',   userId: '@cryptodan88',   exchange: 'Binance Spot', cycleCount:  1242, pauseReason: '—', status: 'ACTIVE',  balance: '450.00 SOL',  pl24h: -0.12 },
+  { id: 'S-11200', botType: 'DCA',          name: 'AI Market Neutral Alpha', ticker: 'BTC/USDT',   userId: '@cryptodan88',   exchange: 'Binance Spot', cycleCount: 14291, pauseReason: '—', status: 'ACTIVE',  balance: '5,000 USDT',  pl24h:  0.05 },
+
+  // Bots for @johndoe_quant
+  { id: 'S-55101', botType: 'Trailing DCA', name: 'JD BTC Trailing',         ticker: 'BTC/USDT',   userId: '@johndoe_quant', exchange: 'Binance',      cycleCount:  4210, pauseReason: '—', status: 'ACTIVE',  balance: '0.22 BTC',    pl24h:  1.10 },
+  { id: 'S-55102', botType: 'Grid',         name: 'JD ETH Grid',             ticker: 'ETH/USDT',   userId: '@johndoe_quant', exchange: 'OKX',          cycleCount:  1840, pauseReason: '—', status: 'PAUSED',  balance: '3.10 ETH',    pl24h:  0.00 },
 
   // Other general layout bots
-  {
-    id: 'S-14291',
-    name: 'Grid Bot Extreme',
-    ticker: 'BTC/USDT-GRID',
-    userId: 'Quant_Alpha_99',
-    exchange: 'Binance',
-    cycleCount: 14291,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '1.25 BTC',
-    pl24h: 1.85
-  },
-  {
-    id: 'S-00842',
-    name: 'Arbitrage Bot v4',
-    ticker: 'ETH/PERP-ARB',
-    userId: 'System_Admin_01',
-    exchange: 'Kraken',
-    cycleCount: 842,
-    pauseReason: 'API Latency Spike > 500ms',
-    status: 'ANOMALY',
-    balance: '45.10 ETH',
-    pl24h: -3.42
-  },
-  {
-    id: 'S-14292',
-    name: 'BTC Scalper Dual-Rail',
-    ticker: 'BTC/USDT-GRID',
-    userId: 'System_Admin_01',
-    exchange: 'Binance',
-    cycleCount: 14292,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '350.00 USDT',
-    pl24h: 0.35
-  },
-  {
-    id: 'S-14293',
-    name: 'BTC Grid Fast-Lane',
-    ticker: 'BTC/USDT-GRID',
-    userId: 'Quant_Alpha_99',
-    exchange: 'Binance',
-    cycleCount: 14291,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '0.045 BTC',
-    pl24h: 1.12
-  },
-  {
-    id: 'S-00843',
-    name: 'Eth Moonshot Grid',
-    ticker: 'BTC/USDT-GRID',
-    userId: 'System_Admin_01',
-    exchange: 'Kraken',
-    cycleCount: 842,
-    pauseReason: '—',
-    status: 'PAUSED',
-    balance: '2.50 ETH',
-    pl24h: 0.00
-  },
-  {
-    id: 'S-14294',
-    name: 'Saber-X SOL Raider',
-    ticker: 'BTC/USDT-GRID',
-    userId: 'System_Alpha_99',
-    exchange: 'Binance',
-    cycleCount: 14291,
-    pauseReason: '—',
-    status: 'ACTIVE',
-    balance: '185.00 SOL',
-    pl24h: 4.52
-  },
-  {
-    id: 'S-00844',
-    name: 'Perp Grid Heuristic',
-    ticker: 'ETH/PERP-ARB',
-    userId: 'System_Admin_01',
-    exchange: 'Kraken',
-    cycleCount: 842,
-    pauseReason: '—',
-    status: 'PAUSED',
-    balance: '1,200 USDT',
-    pl24h: 0.00
-  }
+  { id: 'S-14291', botType: 'Grid',         name: 'Grid Bot Extreme',        ticker: 'BTC/USDT',   userId: 'Quant_Alpha_99', exchange: 'Binance',      cycleCount: 14291, pauseReason: '—', status: 'ACTIVE',  balance: '1.25 BTC',    pl24h:  1.85 },
+  { id: 'S-00842', botType: 'Arbitrage',    name: 'Arbitrage Bot v4',        ticker: 'ETH/PERP',   userId: 'System_Admin_01',exchange: 'Kraken',       cycleCount:   842, pauseReason: 'API Latency Spike > 500ms', status: 'ANOMALY', balance: '45.10 ETH', pl24h: -3.42 },
+  { id: 'S-14292', botType: 'Trailing DCA', name: 'BTC Scalper Dual-Rail',   ticker: 'BTC/USDT',   userId: 'System_Admin_01',exchange: 'Binance',      cycleCount: 14292, pauseReason: '—', status: 'ACTIVE',  balance: '350.00 USDT', pl24h:  0.35 },
+  { id: 'S-14293', botType: 'Grid',         name: 'BTC Grid Fast-Lane',      ticker: 'BTC/USDT',   userId: 'Quant_Alpha_99', exchange: 'Binance',      cycleCount: 14291, pauseReason: '—', status: 'ACTIVE',  balance: '0.045 BTC',   pl24h:  1.12 },
+  { id: 'S-00843', botType: 'DCA',          name: 'Eth Moonshot Grid',       ticker: 'ETH/USDT',   userId: 'System_Admin_01',exchange: 'Kraken',       cycleCount:   842, pauseReason: '—', status: 'PAUSED',  balance: '2.50 ETH',    pl24h:  0.00 },
+  { id: 'S-14294', botType: 'Martingale',   name: 'Saber-X SOL Raider',      ticker: 'SOL/USDT',   userId: 'System_Alpha_99',exchange: 'Binance',      cycleCount: 14291, pauseReason: '—', status: 'ACTIVE',  balance: '185.00 SOL',  pl24h:  4.52 },
+  { id: 'S-00844', botType: 'Scalper',      name: 'Perp Grid Heuristic',     ticker: 'ETH/PERP',   userId: 'System_Admin_01',exchange: 'Kraken',       cycleCount:   842, pauseReason: '—', status: 'PAUSED',  balance: '1,200 USDT',  pl24h:  0.00 },
 ];
 
 export const INITIAL_SPEND_EVENTS: SpendEvent[] = [
@@ -279,15 +162,20 @@ export const INITIAL_ADMIN_ACTIVITY: AdminActivity[] = [
 
 export const MOCK_CU_HISTORY: Record<string, CUHistoryRecord[]> = {
   '@cryptodan88': [
-    { id: 'tx-201', timestamp: '2026-06-03 14:22', type: 'ADJUST', amount: 500, description: 'Credit Unit (CU) manual adjustment (Promo)' },
-    { id: 'tx-202', timestamp: '2026-06-03 12:10', type: 'SPENT', amount: -15.5, description: 'Bot trade cycle START_BOT (S-99201)' },
-    { id: 'tx-203', timestamp: '2026-06-02 18:45', type: 'BONUS', amount: 100, description: 'Affiliate referral bonus from @user_921' },
-    { id: 'tx-204', timestamp: '2026-06-02 09:30', type: 'REFUND', amount: 45.0, description: 'API Latency error gas refund on @ETH_ARB' },
-    { id: 'tx-205', timestamp: '2026-06-01 22:12', type: 'SPENT', amount: -8.2, description: 'Bot DCA execution cycle DCA_EXECUTED (S-77212)' }
+    { id: 'tx-201', timestamp: '2026-06-03 14:22', type: 'ADJUST',  amount:   500, description: 'Credit Unit (CU) manual adjustment (Promo)' },
+    { id: 'tx-202', timestamp: '2026-06-03 12:10', type: 'SPENT',   amount: -15.5, description: 'Bot trade cycle START_BOT (S-99201)',          botType: 'Trailing DCA' },
+    { id: 'tx-203', timestamp: '2026-06-02 18:45', type: 'BONUS',   amount:   100, description: 'Affiliate referral bonus from @user_921' },
+    { id: 'tx-204', timestamp: '2026-06-02 09:30', type: 'REFUND',  amount:  45.0, description: 'API Latency error gas refund on @ETH_ARB',     botType: 'Arbitrage' },
+    { id: 'tx-205', timestamp: '2026-06-01 22:12', type: 'SPENT',   amount:  -8.2, description: 'Bot DCA execution cycle DCA_EXECUTED (S-77212)',botType: 'DCA' },
+    { id: 'tx-206', timestamp: '2026-06-01 10:05', type: 'SPENT',   amount:  -4.1, description: 'Scalper cycle tick (S-77212)',                  botType: 'Scalper' },
+    { id: 'tx-207', timestamp: '2026-05-31 20:40', type: 'SPENT',   amount: -12.0, description: 'Grid rebalance cycle (S-14291)',                botType: 'Grid' },
+    { id: 'tx-208', timestamp: '2026-05-31 08:15', type: 'SPENT',   amount:  -6.5, description: 'Trailing DCA entry trigger (S-99201)',          botType: 'Trailing DCA' },
   ],
   '@johndoe_quant': [
-    { id: 'tx-301', timestamp: '2026-06-03 15:30', type: 'ADJUST', amount: -200, description: 'CU Deducted - System correction' },
-    { id: 'tx-302', timestamp: '2026-06-03 10:15', type: 'BONUS', amount: 500, description: 'Bronze affiliate reward bonus' }
+    { id: 'tx-301', timestamp: '2026-06-03 15:30', type: 'ADJUST',  amount: -200, description: 'CU Deducted - System correction' },
+    { id: 'tx-302', timestamp: '2026-06-03 10:15', type: 'BONUS',   amount:  500, description: 'Bronze affiliate reward bonus' },
+    { id: 'tx-303', timestamp: '2026-06-02 14:00', type: 'SPENT',   amount:  -9.0, description: 'Trailing DCA buy trigger (S-55101)',            botType: 'Trailing DCA' },
+    { id: 'tx-304', timestamp: '2026-06-02 11:30', type: 'SPENT',   amount:  -3.5, description: 'Grid rebalance tick (S-55102)',                 botType: 'Grid' },
   ]
 };
 

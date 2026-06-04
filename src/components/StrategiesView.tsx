@@ -243,6 +243,7 @@ export default function StrategiesView({
               <tr className="bg-[#0c101a] text-[10px] font-mono tracking-wider text-slate-405 border-b border-[#1e2638] select-none">
                 <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Status</th>
                 <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Ticker</th>
+                <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Bot Type</th>
                 <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">User</th>
                 <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Exchange</th>
                 <th className="py-3 px-4 md:px-6 font-semibold uppercase whitespace-nowrap">Cycle #</th>
@@ -266,6 +267,13 @@ export default function StrategiesView({
                     {/* Ticker drill-down link */}
                     <td className="py-4 px-4 md:px-6 font-bold text-[#3b82f6] hover:text-blue-400 cursor-pointer whitespace-nowrap" onClick={() => onViewBotDetail(bot.id)}>
                       {bot.ticker}
+                    </td>
+
+                    {/* Bot Type badge */}
+                    <td className="py-4 px-4 md:px-6 whitespace-nowrap">
+                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded border bg-violet-950/40 text-violet-300 border-violet-500/20 font-mono">
+                        {bot.botType}
+                      </span>
                     </td>
 
                     {/* User profile username */}
