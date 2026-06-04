@@ -18,7 +18,7 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // As per user instruction: "Email/ password -> Không cần ràng buộc" (No constraints/restrictions needed)
     // We will do a basic empty check, but no regex/length checks.
     if (!email.trim()) {
@@ -31,7 +31,7 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
     }
 
     onAddAdmin(email.trim(), role);
-    
+
     // Reset form & close
     setEmail('');
     setPassword('');
@@ -41,7 +41,7 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
     setIsModalOpen(false);
   };
 
-  const filteredAdmins = admins.filter(admin => 
+  const filteredAdmins = admins.filter(admin =>
     admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     admin.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -53,7 +53,7 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
         <div>
           <h2 className="text-xl md:text-2xl font-display font-medium text-white tracking-tight">Admin User Management</h2>
           <p className="text-xs text-slate-400 mt-1 font-sans">
-            Manage administrator accounts with access to the TCA CMS system.
+            Manage administrator accounts with access to the Mini App CMS system.
           </p>
         </div>
         <button
@@ -131,13 +131,12 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
                       {admin.email}
                     </td>
                     <td className="py-4 px-4 md:px-6 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium ${
-                        admin.role === 'Super Admin' 
-                          ? 'bg-purple-950/40 text-purple-400 border border-purple-500/20' 
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium ${admin.role === 'Super Admin'
+                          ? 'bg-purple-950/40 text-purple-400 border border-purple-500/20'
                           : admin.role === 'Admin'
                             ? 'bg-blue-950/40 text-blue-400 border border-blue-500/20'
                             : 'bg-slate-800 text-slate-300 border border-[#1e2638]'
-                      }`}>
+                        }`}>
                         {admin.role}
                       </span>
                     </td>
@@ -156,7 +155,7 @@ export default function AdminManagementView({ admins, onAddAdmin }: AdminManagem
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          
+
           <div className="relative w-full max-w-md bg-[#121824] border border-[#263147] rounded-xl shadow-2xl overflow-hidden animate-zoom-in">
             {/* Modal Header */}
             <div className="px-6 py-4 bg-[#0c101a] border-b border-[#1e2638] flex items-center justify-between">

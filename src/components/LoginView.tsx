@@ -12,7 +12,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Loose verification: since the user specified "Không cần ràng buộc" (No constraints),
     // we allow any non-empty input or default admin credentials.
     if (!email.trim()) {
@@ -33,7 +33,7 @@ export default function LoginView({ onLogin }: LoginViewProps) {
       {/* Title */}
       <div className="mb-5 text-center">
         <a href="/" className="text-4xl font-light text-[#444444] hover:text-[#444444] transition-colors leading-none tracking-tight block">
-          <b>TCA</b> CMS
+          <b>Mini App</b> CMS
         </a>
       </div>
 

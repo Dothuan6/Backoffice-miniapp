@@ -295,7 +295,7 @@ export default function StrategiesView({
                         <button
                           onClick={() => onViewBotDetail(bot.id)}
                           title="Inspect detailed cycle stats"
-                          className="w-7 h-7 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/20 transition-colors cursor-pointer"
+                          className="w-7 h-7 min-h-0 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/20 transition-colors cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -303,7 +303,7 @@ export default function StrategiesView({
                         <button
                           onClick={() => onToggleBotStatus(bot.id)}
                           title={bot.status === 'ACTIVE' ? 'Pause bot' : 'Start bot'}
-                          className="w-7 h-7 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-amber-500/20 transition-colors cursor-pointer"
+                          className="w-7 h-7 min-h-0 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-amber-500/20 transition-colors cursor-pointer"
                         >
                           {bot.status === 'ACTIVE' ? <Pause className="w-3 h-3 text-amber-500" /> : <Play className="w-3 h-3 text-emerald-500" />}
                         </button>
@@ -311,7 +311,7 @@ export default function StrategiesView({
                         <button
                           onClick={() => setShowDeleteModal(bot.id)}
                           title="Remove strategy bot configuration"
-                          className="w-7 h-7 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:border-rose-500/20 transition-colors cursor-pointer"
+                          className="w-7 h-7 min-h-0 bg-slate-800/60 border border-[#1e2638] rounded-lg flex items-center justify-center text-slate-505 hover:text-rose-400 hover:border-rose-500/20 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

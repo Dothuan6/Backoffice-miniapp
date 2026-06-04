@@ -257,7 +257,7 @@ export default function ExchangesView({
                     <span className="text-[10px] text-slate-450 font-sans">Status:</span>
                     <button
                       onClick={() => handleToggleStatus(ex.id)}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 focus:outline-none ${
+                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 focus:outline-none min-h-0 ${
                         isActive ? 'bg-blue-600' : 'bg-slate-800'
                       }`}
                       aria-label={`Toggle ${ex.name} status`}
