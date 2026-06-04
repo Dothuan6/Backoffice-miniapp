@@ -29,15 +29,15 @@ export default function Sidebar({
   const adminName = adminEmail.split('@')[0];
 
   const menuItems: MenuItem[] = [
-    { id: 'users', label: 'Users', icon: Users, badge: userCount },
-    { id: 'exchanges', label: 'Exchanges', icon: Landmark, badge: exchangeCount },
-    { id: 'admins', label: 'Admins', icon: Shield, badge: adminCount },
-    { id: 'strategies', label: 'Strategies', icon: Cpu },
-    { id: 'cu_reports', label: 'CU Reports', icon: FileSpreadsheet },
-    { id: 'trading_report', label: 'Trading Report', icon: BarChart2 },
-    { id: 'payments_all', label: 'Payments', icon: CreditCard },
-    { id: 'audit_log', label: 'Audit Log', icon: ScrollText },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'cu_reports',     label: 'CU Reports',     icon: FileSpreadsheet },
+    { id: 'trading_report', label: 'Trading Report',  icon: BarChart2 },
+    { id: 'users',          label: 'Users',           icon: Users,    badge: userCount },
+    { id: 'strategies',     label: 'Strategies',      icon: Cpu },
+    { id: 'payments_all',   label: 'Payments',        icon: CreditCard },
+    { id: 'exchanges',      label: 'Exchanges',       icon: Landmark, badge: exchangeCount },
+    { id: 'admins',         label: 'Admins',          icon: Shield,   badge: adminCount },
+    { id: 'audit_log',      label: 'Audit Log',       icon: ScrollText },
+    { id: 'settings',       label: 'Settings',        icon: Settings },
   ];
 
   const handleNav = (id: string) => {
