@@ -427,7 +427,6 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
                 { label: 'LAST RUN ID',  value: '01JXK8...7F9S' },
                 { label: 'HEARTBEAT',    value: '2s ago',               color: 'text-emerald-400' },
                 { label: 'STARTED AT',   value: '2026-06-01 09:00' },
-                { label: 'TOTAL CYCLES', value: bot.cycleCount.toLocaleString(), color: 'text-white' },
               ].map(r => (
                 <div key={r.label} className="flex justify-between items-center">
                   <span>{r.label}</span>
