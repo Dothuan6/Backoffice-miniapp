@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ArrowLeft, Copy, Check, Play, Pause, ExternalLink, Settings, HelpCircle, RefreshCw } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Copy, Check, Play, Pause, RefreshCw, ChevronDown } from 'lucide-react';
 import { Bot } from '../types';
 
 interface BotDetailViewProps {
@@ -8,362 +8,547 @@ interface BotDetailViewProps {
   onToggleStatus: () => void;
 }
 
-export default function BotDetailView({
-  bot,
-  onBackToStrategies,
-  onToggleStatus
-}: BotDetailViewProps) {
-  const [copiedText, setCopiedText] = useState<string | null>(null);
-  const [dcaRound, setDcaRound] = useState(2);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+// ── Mock data types ──────────────────────────────────────────────────────────
 
-  const handleCopy = (text: string, type: string) => {
+interface CycleOrder {
+  orderId: string;
+  side: 'BUY' | 'SELL';
+  type: 'MARKET' | 'LIMIT' | 'TRAILING';
+  qty: number;
+  price: number;
+  filled: number;
+  status: 'FILLED' | 'OPEN' | 'CANCELLED';
+  time: string;
+}
+
+interface CycleRecord {
+  cycleId: string;
+  startTime: string;
+  endTime: string;
+  entryPrice: number;
+  avgPrice: number;
+  invested: number;
+  qty: number;
+  pnlPct: number;
+  pnlUsdt: number;
+  dcaRounds: number;
+  status: 'CLOSED' | 'OPEN' | 'SL_HIT';
+  orders: CycleOrder[];
+}
+
+// ── Mock cycle history ───────────────────────────────────────────────────────
+
+const MOCK_CYCLES: CycleRecord[] = [
+  {
+    cycleId: 'cy-0046',
+    startTime: '2026-06-03 08:12',
+    endTime:   '2026-06-03 14:45',
+    entryPrice: 48100.00,
+    avgPrice:   48294.10,
+    invested:   200.00,
+    qty:        0.004145,
+    pnlPct:     0.42,
+    pnlUsdt:    0.84,
+    dcaRounds:  2,
+    status:     'CLOSED',
+    orders: [
+      { orderId: 'bo-64e2-r0', side: 'BUY',  type: 'TRAILING', qty: 0.002075, price: 48100.00, filled: 0.002075, status: 'FILLED',    time: '2026-06-03 08:12' },
+      { orderId: 'dca-64e2-r1',side: 'BUY',  type: 'LIMIT',    qty: 0.002070, price: 48494.10, filled: 0.002070, status: 'FILLED',    time: '2026-06-03 11:20' },
+      { orderId: 'tp-64e2-r0', side: 'SELL', type: 'LIMIT',    qty: 0.004145, price: 48904.20, filled: 0.004145, status: 'FILLED',    time: '2026-06-03 14:45' },
+    ],
+  },
+  {
+    cycleId: 'cy-0045',
+    startTime: '2026-06-02 19:30',
+    endTime:   '2026-06-03 07:55',
+    entryPrice: 47820.00,
+    avgPrice:   47950.55,
+    invested:   300.00,
+    qty:        0.006255,
+    pnlPct:     1.12,
+    pnlUsdt:    3.36,
+    dcaRounds:  3,
+    status:     'CLOSED',
+    orders: [
+      { orderId: 'bo-a811-r0',  side: 'BUY',  type: 'TRAILING', qty: 0.002090, price: 47820.00, filled: 0.002090, status: 'FILLED', time: '2026-06-02 19:30' },
+      { orderId: 'dca-a811-r1', side: 'BUY',  type: 'LIMIT',    qty: 0.002095, price: 48010.20, filled: 0.002095, status: 'FILLED', time: '2026-06-02 22:14' },
+      { orderId: 'dca-a811-r2', side: 'BUY',  type: 'LIMIT',    qty: 0.002070, price: 48021.45, filled: 0.002070, status: 'FILLED', time: '2026-06-03 02:40' },
+      { orderId: 'tp-a811-r0',  side: 'SELL', type: 'LIMIT',    qty: 0.006255, price: 48490.00, filled: 0.006255, status: 'FILLED', time: '2026-06-03 07:55' },
+    ],
+  },
+  {
+    cycleId: 'cy-0044',
+    startTime: '2026-06-02 10:05',
+    endTime:   '2026-06-02 19:12',
+    entryPrice: 47200.00,
+    avgPrice:   47200.00,
+    invested:   100.00,
+    qty:        0.002118,
+    pnlPct:     3.51,
+    pnlUsdt:    3.51,
+    dcaRounds:  1,
+    status:     'CLOSED',
+    orders: [
+      { orderId: 'bo-c299-r0', side: 'BUY',  type: 'TRAILING', qty: 0.002118, price: 47200.00, filled: 0.002118, status: 'FILLED', time: '2026-06-02 10:05' },
+      { orderId: 'tp-c299-r0', side: 'SELL', type: 'LIMIT',    qty: 0.002118, price: 48858.10, filled: 0.002118, status: 'FILLED', time: '2026-06-02 19:12' },
+    ],
+  },
+  {
+    cycleId: 'cy-0043',
+    startTime: '2026-06-01 14:20',
+    endTime:   '2026-06-02 09:50',
+    entryPrice: 47900.00,
+    avgPrice:   47655.30,
+    invested:   200.00,
+    qty:        0.004198,
+    pnlPct:    -0.28,
+    pnlUsdt:   -0.56,
+    dcaRounds:  2,
+    status:     'SL_HIT',
+    orders: [
+      { orderId: 'bo-d120-r0',  side: 'BUY',  type: 'TRAILING', qty: 0.002087, price: 47900.00, filled: 0.002087, status: 'FILLED',    time: '2026-06-01 14:20' },
+      { orderId: 'dca-d120-r1', side: 'BUY',  type: 'LIMIT',    qty: 0.002111, price: 47410.60, filled: 0.002111, status: 'FILLED',    time: '2026-06-01 20:05' },
+      { orderId: 'sl-d120-r0',  side: 'SELL', type: 'MARKET',   qty: 0.004198, price: 47522.00, filled: 0.004198, status: 'FILLED',    time: '2026-06-02 09:50' },
+    ],
+  },
+];
+
+// ── Open orders mock ─────────────────────────────────────────────────────────
+
+const MOCK_OPEN_ORDERS: CycleOrder[] = [
+  { orderId: 'dca-64e2f3-r2', side: 'BUY',  type: 'LIMIT',    qty: 0.000145, price: 48291.10, filled: 0,        status: 'OPEN',   time: '2026-06-04 09:12' },
+  { orderId: 'tp-64e2f3-r0',  side: 'SELL', type: 'TRAILING', qty: 0.004145, price: 48110.00, filled: 0,        status: 'OPEN',   time: '2026-06-04 09:12' },
+];
+
+// ── Strategy config params ───────────────────────────────────────────────────
+
+const STRATEGY_CONFIG = [
+  { group: 'Orders',    params: [
+    { label: 'Base Order Size',     value: '100.0 USDT',  highlight: false },
+    { label: 'Safety Order Size',   value: '100.0 USDT',  highlight: false },
+    { label: 'Max Safety Orders',   value: '10',          highlight: false },
+    { label: 'Price Deviation',     value: '1.5%',        highlight: false },
+    { label: 'SO Step Scale',       value: '1.05×',       highlight: false },
+    { label: 'SO Volume Scale',     value: '1.0×',        highlight: false },
+  ]},
+  { group: 'Entry',     params: [
+    { label: 'Entry Type',          value: 'Trailing',    highlight: true  },
+    { label: 'Entry Trailing Dev',  value: '0.5%',        highlight: false },
+  ]},
+  { group: 'Take Profit', params: [
+    { label: 'TP %',                value: '3.5%',        highlight: false },
+    { label: 'TP Trailing',         value: 'Enabled',     highlight: true  },
+    { label: 'TP Trailing Dev',     value: '0.2%',        highlight: false },
+  ]},
+  { group: 'Stop Loss', params: [
+    { label: 'Stop Loss',           value: 'DISABLED',    highlight: false, danger: true },
+    { label: 'SL %',                value: '10.0%',       highlight: false, muted: true  },
+  ]},
+  { group: 'Timing',    params: [
+    { label: 'Cooldown',            value: '300 s',       highlight: false },
+    { label: 'Min Volume 24h',      value: '5,000 USDT',  highlight: false },
+  ]},
+];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const statusBadge = (s: CycleRecord['status']) => {
+  const map = {
+    CLOSED: 'bg-slate-800 text-slate-400 border-slate-700',
+    OPEN:   'bg-blue-950/40 text-blue-400 border-blue-500/25',
+    SL_HIT: 'bg-rose-950/40 text-rose-400 border-rose-500/25',
+  };
+  return <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${map[s]}`}>{s}</span>;
+};
+
+const orderStatusBadge = (s: CycleOrder['status']) => {
+  const map = {
+    FILLED:    'bg-emerald-950/40 text-emerald-400 border-emerald-500/25',
+    OPEN:      'bg-blue-950/40 text-blue-400 border-blue-500/25',
+    CANCELLED: 'bg-slate-800 text-slate-400 border-slate-700',
+  };
+  return <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${map[s]}`}>{s}</span>;
+};
+
+const pnlColor = (v: number) => v > 0 ? 'text-emerald-400' : v < 0 ? 'text-rose-400' : 'text-slate-400';
+const pnlFmt  = (v: number, suffix = '%') => `${v > 0 ? '+' : ''}${v.toFixed(2)}${suffix}`;
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus }: BotDetailViewProps) {
+  const [copiedText, setCopiedText]         = useState<string | null>(null);
+  const [dcaRound, setDcaRound]             = useState(2);
+  const [isRefreshing, setIsRefreshing]     = useState(false);
+  const [expandedCycles, setExpandedCycles] = useState<Set<string>>(new Set());
+
+  const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedText(type);
+    setCopiedText(key);
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  const executeRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 800);
-  };
+  const toggleCycle = (id: string) =>
+    setExpandedCycles(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
-  // Derived mock data depending on DCA state for higher interactivity
   const totalInvested = dcaRound * 100;
-  const quantity = (totalInvested / 48240).toFixed(6);
+  const quantity      = (totalInvested / 48240).toFixed(6);
 
   return (
-    <div className="space-y-6" id="bot-detail-view">
-      {/* Breadcrumbs navigation matching Screenshot 5 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-slate-500" id="bot-breadcrumbs">
+    <div className="space-y-5" id="bot-detail-view">
+
+      {/* ── Breadcrumbs ──────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-slate-500">
         <div className="flex items-center gap-2 overflow-x-auto shrink-0">
           <button onClick={onBackToStrategies} className="hover:text-blue-400 cursor-pointer text-slate-400 font-semibold flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-650" />
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
           <span className="text-slate-400">Strategies</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-650" />
-          <span className="text-blue-400 font-semibold">{bot.ticker} ({bot.userId})</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+          <span className="text-blue-400 font-semibold">{bot.ticker} · {bot.userId}</span>
         </div>
-
-        {/* Dynamic refresh indicators */}
         <button
-          onClick={executeRefresh}
-          className="flex items-center gap-1.5 hover:text-slate-350 bg-slate-800 px-3 py-1.5 rounded-lg border border-[#1e2638] cursor-pointer"
+          onClick={() => { setIsRefreshing(true); setTimeout(() => setIsRefreshing(false), 800); }}
+          className="flex items-center gap-1.5 hover:text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg border border-[#1e2638] cursor-pointer self-start sm:self-auto"
         >
           <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-          <span>Force Refresh</span>
+          Force Refresh
         </button>
       </div>
 
-      {/* Grid wrapper for Main elements */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="bot-header-metrics-row">
-        {/* Main Bot Details Header Card */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 flex flex-col justify-between relative overflow-hidden" id="bot-profile-identity-card">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl md:text-2xl font-display font-bold text-white tracking-tight">{bot.name}</h2>
+      {/* ── Row 1: Strategy summary + Temporal Workflow ──────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Strategy identity card */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2.5 min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="text-xl md:text-2xl font-display font-bold text-white tracking-tight truncate">{bot.name}</h2>
                 <button
-                  id="detail-status-toggle"
                   onClick={onToggleStatus}
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded border transition-all cursor-pointer ${
-                    bot.status === 'ACTIVE'
-                      ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20'
-                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded border transition-all cursor-pointer shrink-0 ${
+                    bot.status === 'ACTIVE' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'
                   }`}
                 >
                   {bot.status}
                 </button>
+                <span className="text-[9px] font-semibold px-2 py-0.5 rounded border bg-violet-950/40 text-violet-300 border-violet-500/20 font-mono shrink-0">
+                  {bot.botType}
+                </span>
               </div>
-              <div className="text-xs font-mono text-slate-405 space-y-1">
-                <div>Ticker: <span className="text-slate-300 font-semibold uppercase">{bot.ticker.replace('-', '')}</span></div>
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span>ID: <span className="text-slate-200">64e2f38ab821cd94</span></span>
-                  <button
-                    onClick={() => handleCopy('64e2f38ab821cd94', 'bot-id')}
-                    className="text-slate-505 hover:text-white"
-                  >
+              <div className="text-xs font-mono text-slate-400 space-y-1">
+                <div>Ticker: <span className="text-slate-200 font-semibold uppercase">{bot.ticker}</span></div>
+                <div className="flex items-center gap-1.5">
+                  ID: <span className="text-slate-200">64e2f38ab821cd94</span>
+                  <button onClick={() => handleCopy('64e2f38ab821cd94', 'bot-id')} className="text-slate-500 hover:text-white cursor-pointer">
                     {copiedText === 'bot-id' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
                 <div>Owner: <span className="text-blue-400">{bot.userId}</span></div>
               </div>
             </div>
-
-            {/* Exchange & Gold Coin Logo block */}
-            <div className="flex flex-col items-end gap-3 text-right">
-              <div className="flex items-center gap-1.5 bg-[#1a2133] hover:bg-[#20293d] border border-slate-750 px-2.5 py-1 rounded text-xs select-none">
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <div className="flex items-center gap-1.5 bg-[#1a2133] border border-[#2a354d] px-2.5 py-1 rounded text-xs font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                <span className="font-mono text-[11px] text-slate-300">{bot.exchange}</span>
+                <span className="text-slate-300">{bot.exchange}</span>
               </div>
-
-              {/* Big Golden Crypto Icon */}
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 p-[1.5px] shadow-lg shadow-amber-950/20 flex items-center justify-center font-display font-bold text-slate-900 border border-amber-500/20 select-none">
+              <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 p-[1.5px] shadow-lg shadow-amber-950/20 flex items-center justify-center font-display font-bold text-slate-900 text-lg select-none">
                 ₿
               </div>
             </div>
           </div>
+
+          {/* Quick stats bar */}
+          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#1e2638]">
+            {[
+              { label: 'Cycle Count', value: `#${bot.cycleCount.toLocaleString()}` },
+              { label: 'Balance',     value: bot.balance },
+              { label: 'PL 24H',      value: `${bot.pl24h > 0 ? '+' : ''}${bot.pl24h}%`, color: pnlColor(bot.pl24h) },
+            ].map(s => (
+              <div key={s.label} className="text-center">
+                <span className="text-[9px] text-slate-500 font-mono uppercase block mb-0.5">{s.label}</span>
+                <span className={`text-sm font-mono font-bold ${s.color ?? 'text-white'}`}>{s.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Temporal Workflow Status Card (Screenshot 5 top right) */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 space-y-3.5 flex flex-col justify-between" id="temporal-workflow-card">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">TEMPORAL WORKFLOW</span>
-            <span className="bg-emerald-950/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/25 flex items-center gap-1 tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        {/* Temporal Workflow */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2.5 mb-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Temporal Workflow</span>
+            <span className="bg-emerald-950/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/25 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               RUNNING
             </span>
           </div>
-
-          <div className="space-y-2 text-xs font-mono leading-relaxed text-slate-400">
-            <div className="flex justify-between">
-              <span>WORKFLOW ID</span>
-              <span className="text-slate-200 select-all font-semibold">dca-64e2f3-main-flow</span>
-            </div>
-            <div className="flex justify-between">
-              <span>LAST RUN ID</span>
-              <span className="text-slate-200 select-all">01JXK8...7F9S</span>
-            </div>
-            <div className="flex justify-between">
-              <span>HEARTBEAT</span>
-              <span className="text-emerald-400 font-bold">2s ago</span>
-            </div>
+          <div className="space-y-2.5 text-xs font-mono text-slate-400 flex-1">
+            {[
+              { label: 'WORKFLOW ID',  value: 'dca-64e2f3-main-flow', mono: true },
+              { label: 'LAST RUN ID',  value: '01JXK8...7F9S',        mono: true },
+              { label: 'HEARTBEAT',    value: '2s ago',               color: 'text-emerald-400' },
+              { label: 'STARTED AT',   value: '2026-06-01 09:00',     mono: true },
+              { label: 'TOTAL CYCLES', value: bot.cycleCount.toLocaleString(), color: 'text-white' },
+            ].map(r => (
+              <div key={r.label} className="flex justify-between items-center">
+                <span>{r.label}</span>
+                <span className={`font-semibold ${r.color ?? 'text-slate-200'} select-all text-right`}>{r.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Middle Row: Current Cycle Stats & Strategy Configurations */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="bot-cycle-metrics-row">
-        {/* Current Cycle specifications panel */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 space-y-4" id="current-cycle-card">
+      {/* ── Row 2: Current Cycle + Strategy Configuration ────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* Current Cycle */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2.5">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-slate-305">Current Cycle</h3>
-              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">cy-0047</span>
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-sm font-semibold text-slate-200">Current Cycle</h3>
+              <span className="text-[10px] bg-[#1c2333] text-slate-400 px-2 py-0.5 rounded font-mono border border-[#2a354d]">cy-0047</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="bg-blue-950/40 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-500/25">OPEN</span>
-              <span className="bg-amber-950/40 text-amber-405 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/25">WAITING_TP</span>
+              <span className="bg-amber-950/40 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500/25">WAITING_TP</span>
             </div>
           </div>
 
-          {/* Six Metrics Grid matching Screenshot 5 */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4.5" id="current-cycle-metrics-grid">
-            {/* DCA progress */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">DCA Progress</span>
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-white font-mono">Round {dcaRound} / 10</span>
-                {/* Micro interactivity toggle */}
-                <div className="flex flex-col -space-y-0.5">
-                  <button onClick={() => setDcaRound(prev => Math.min(prev + 1, 10))} className="text-[10px] text-slate-500 hover:text-white leading-none font-bold pr-0.5 cursor-pointer">▲</button>
-                  <button onClick={() => setDcaRound(prev => Math.max(prev - 1, 1))} className="text-[10px] text-slate-500 hover:text-white leading-none font-bold pr-0.5 cursor-pointer">▼</button>
-                </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              {
+                label: 'DCA Progress',
+                node: (
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-white font-mono">Round {dcaRound} / 10</span>
+                    <div className="flex flex-col -space-y-0.5 ml-2">
+                      <button onClick={() => setDcaRound(p => Math.min(p+1,10))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▲</button>
+                      <button onClick={() => setDcaRound(p => Math.max(p-1,1))} className="text-[10px] text-slate-500 hover:text-white cursor-pointer leading-none font-bold">▼</button>
+                    </div>
+                  </div>
+                ),
+              },
+              { label: 'Entry Price',     value: '$48,100.00' },
+              { label: 'Avg Price',       value: '$48,294.10' },
+              { label: 'Total Invested',  value: `${totalInvested.toFixed(2)} USDT` },
+              { label: 'Total Qty',       value: `${quantity} BTC` },
+              { label: 'Unrealized P&L',  value: '+0.42%', color: 'text-emerald-400' },
+            ].map((m, i) => (
+              <div key={i} className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3 space-y-1.5">
+                <span className="text-[9px] text-slate-500 font-mono uppercase block">{m.label}</span>
+                {m.node ?? (
+                  <span className={`text-base font-bold font-mono ${m.color ?? 'text-white'}`}>{m.value}</span>
+                )}
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Average Price */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">Avg Price</span>
-              <span className="text-lg font-bold text-white font-mono">$48,294.10</span>
+          {/* Progress bar */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-[10px] font-mono text-slate-500">
+              <span>DCA Fill Progress</span>
+              <span>{dcaRound} / 10 orders</span>
             </div>
-
-            {/* Entry Price */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">Entry Price</span>
-              <span className="text-lg font-bold text-white font-mono">$48,100.00</span>
-            </div>
-
-            {/* Total Invested */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">Total Invested</span>
-              <span className="text-lg font-bold text-white font-mono">{totalInvested.toFixed(2)} USDT</span>
-            </div>
-
-            {/* Total Quantity */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">Total Quantity</span>
-              <span className="text-lg font-bold text-white font-mono">{quantity} BTC</span>
-            </div>
-
-            {/* Unrealized P&L */}
-            <div className="bg-[#0c101a] border border-[#1e2638] rounded-lg p-3.5 space-y-1">
-              <span className="text-[10px] text-slate-500 font-mono uppercase block">Unrealized P&L</span>
-              <span className="text-lg font-bold text-emerald-400 font-mono tracking-tight">+0.42%</span>
+            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-300"
+                style={{ width: `${(dcaRound / 10) * 100}%` }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Strategy Parameters Configuration Panel */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 flex flex-col justify-between" id="strategy-config-card">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/60 pb-2 mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">STRATEGY CONFIGURATION</h3>
+        {/* Strategy Configuration — full expanded */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 flex flex-col gap-4 overflow-y-auto">
+          <div className="border-b border-[#1e2638]/60 pb-2.5">
+            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 font-mono">Strategy Configuration</h3>
           </div>
 
-          {/* Grid key-values parameters matrix */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs font-mono leading-relaxed select-none">
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Base Order:</span>
-              <span className="text-slate-300 font-bold">100.0</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Trailing Dev:</span>
-              <span className="text-slate-300">0.5%</span>
-            </div>
-
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Safety Order:</span>
-              <span className="text-slate-300 font-bold">100.0</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Trailing Dev:</span>
-              <span className="text-slate-300">0.2%</span>
-            </div>
-
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Price Deviation:</span>
-              <span className="text-slate-300">1.5%</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Max Safety:</span>
-              <span className="text-slate-300">10</span>
-            </div>
-
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">TP PCT:</span>
-              <span className="text-slate-300">3.5%</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Multiplier:</span>
-              <span className="text-slate-300">5</span>
-            </div>
-
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Entry Type:</span>
-              <span className="text-slate-300 font-semibold text-blue-400">trailing</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1">
-              <span className="text-slate-505">Multiplier:</span>
-              <span className="text-slate-300">1.05x</span>
-            </div>
-
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1 col-span-2">
-              <span className="text-slate-505">Stop Loss:</span>
-              <span className="text-rose-400 font-bold">DISABLED (10.0%)</span>
-            </div>
-            <div className="flex justify-between border-b border-[#1f293d]/45 pb-1 col-span-2">
-              <span className="text-slate-505">Cooldown:</span>
-              <span className="text-slate-300 font-semibold">300 seconds</span>
-            </div>
+          <div className="space-y-4 flex-1">
+            {STRATEGY_CONFIG.map(group => (
+              <div key={group.group}>
+                <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
+                  <span>{group.group}</span>
+                  <div className="flex-1 h-px bg-[#1e2638]" />
+                </div>
+                <div className="space-y-1.5">
+                  {group.params.map(p => (
+                    <div key={p.label} className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-500">{p.label}</span>
+                      <span className={
+                        (p as any).danger  ? 'text-rose-400 font-bold' :
+                        (p as any).muted   ? 'text-slate-600'          :
+                        p.highlight        ? 'text-blue-400 font-semibold' :
+                        'text-slate-200'
+                      }>
+                        {p.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom Tables: Open Orders Grid vs Cycle History Matrix */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" id="bot-tables-row">
-        {/* Open Orders Table (Take 3/5 cols) */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-3 space-y-3.5" id="open-orders-card">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/65 pb-2">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-slate-300">Open Orders</h3>
-              <span className="bg-[#1e2638] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono">2</span>
-            </div>
+      {/* ── Row 3: Open Orders (full width) ──────────────────────────────── */}
+      <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-200">Open Orders</h3>
+            <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">
+              {MOCK_OPEN_ORDERS.length}
+            </span>
           </div>
+          <span className="text-[10px] text-slate-500 font-mono">Cycle cy-0047</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs font-mono">
+            <thead>
+              <tr className="bg-[#0c101a] text-[9px] text-slate-500 tracking-wider border-b border-[#1e2638]">
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Order ID</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Side</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Type</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Qty</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Price</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Filled</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Placed At</th>
+                <th className="py-2.5 px-5 font-semibold uppercase">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1e2638]">
+              {MOCK_OPEN_ORDERS.map(o => (
+                <tr key={o.orderId} className="hover:bg-[#161d2d]/25 transition-colors">
+                  <td className="py-3 px-5 text-slate-400">{o.orderId}</td>
+                  <td className="py-3 px-5">
+                    <span className={`font-bold uppercase ${o.side === 'BUY' ? 'text-teal-400' : 'text-rose-400'}`}>{o.side}</span>
+                  </td>
+                  <td className="py-3 px-5 text-slate-400 uppercase">{o.type}</td>
+                  <td className="py-3 px-5 text-slate-200">{o.qty.toFixed(6)}</td>
+                  <td className="py-3 px-5 text-slate-200">${o.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                  <td className="py-3 px-5 text-slate-400">{o.filled.toFixed(6)}</td>
+                  <td className="py-3 px-5 text-slate-500">{o.time}</td>
+                  <td className="py-3 px-5">{orderStatusBadge(o.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs font-mono">
-              <thead>
-                <tr className="bg-[#0c101a] border-b border-[#1e2638] text-[9px] text-slate-405 tracking-wider select-none">
-                  <th className="py-2.5 px-4 font-semibold uppercase">CLIENT_ORDER_ID</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">SIDE</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">TYPE</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">QTY</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">PRICE</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">FILLED</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">STATUS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1e2638] text-[11px] text-slate-300">
-                <tr className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-4 text-slate-400">dca-64e2f3-r2</td>
-                  <td className="py-3 px-4 font-bold text-teal-400 uppercase">BUY</td>
-                  <td className="py-3 px-4 text-slate-450 uppercase">BUY</td>
-                  <td className="py-3 px-4">0.000145</td>
-                  <td className="py-3 px-4">$48,291.10</td>
-                  <td className="py-3 px-4">0</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-slate-800 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-700">CLOSED</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-4 text-slate-400">tp-64e2f3-r0</td>
-                  <td className="py-3 px-4 font-bold text-rose-450 uppercase">SELL</td>
-                  <td className="py-3 px-4 text-slate-450 uppercase">BUY</td>
-                  <td className="py-3 px-4">0.004145</td>
-                  <td className="py-3 px-4">$48,110.00</td>
-                  <td className="py-3 px-4">0</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-slate-800 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-700">CLOSED</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      {/* ── Row 4: Cycle History — grouped + expandable ───────────────────── */}
+      <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-200">Cycle History</h3>
+            <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">
+              {MOCK_CYCLES.length}
+            </span>
           </div>
+          <span className="text-[10px] text-slate-500 font-mono">Click row to expand orders</span>
         </div>
 
-        {/* Cycle History Table (Takes 2/5 cols) */}
-        <div className="bg-[#121824] border border-[#1e2638] rounded-xl p-5 lg:col-span-2 space-y-3.5" id="cycle-history-card">
-          <div className="flex items-center justify-between border-b border-[#1e2638]/65 pb-2">
-            <h3 className="text-sm font-semibold text-slate-300">Cycle History</h3>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs font-mono">
+            <thead>
+              <tr className="bg-[#0c101a] text-[9px] text-slate-500 tracking-wider border-b border-[#1e2638]">
+                <th className="py-2.5 px-5 font-semibold uppercase w-8"></th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Cycle ID</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Start Time</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">End Time</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Entry Price</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Avg Price</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Invested</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Qty</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">DCA</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Realized PnL</th>
+                <th className="py-2.5 px-5 font-semibold uppercase whitespace-nowrap">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1e2638]">
+              {MOCK_CYCLES.map(cycle => {
+                const isOpen = expandedCycles.has(cycle.cycleId);
+                return (
+                  <React.Fragment key={cycle.cycleId}>
+                    {/* Cycle summary row */}
+                    <tr
+                      className="hover:bg-[#161d2d]/35 transition-colors cursor-pointer select-none"
+                      onClick={() => toggleCycle(cycle.cycleId)}
+                    >
+                      <td className="py-3 px-5">
+                        <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                      </td>
+                      <td className="py-3 px-5 font-semibold text-slate-300">{cycle.cycleId}</td>
+                      <td className="py-3 px-5 text-slate-500">{cycle.startTime}</td>
+                      <td className="py-3 px-5 text-slate-500">{cycle.endTime}</td>
+                      <td className="py-3 px-5 text-slate-200">${cycle.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="py-3 px-5 text-slate-200">${cycle.avgPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                      <td className="py-3 px-5 text-slate-300">{cycle.invested.toFixed(2)} USDT</td>
+                      <td className="py-3 px-5 text-slate-300">{cycle.qty.toFixed(6)}</td>
+                      <td className="py-3 px-5 text-center text-slate-400">{cycle.dcaRounds}</td>
+                      <td className="py-3 px-5">
+                        <div className="flex flex-col leading-tight">
+                          <span className={`font-bold ${pnlColor(cycle.pnlPct)}`}>{pnlFmt(cycle.pnlPct)}</span>
+                          <span className={`text-[10px] ${pnlColor(cycle.pnlUsdt)}`}>{pnlFmt(cycle.pnlUsdt, ' USDT')}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-5">{statusBadge(cycle.status)}</td>
+                    </tr>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs font-mono">
-              <thead>
-                <tr className="bg-[#0c101a] border-b border-[#1e2638] text-[9px] text-slate-405 tracking-wider select-none">
-                  <th className="py-2.5 px-4 font-semibold uppercase">CYCLE ID</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">CLOSED DATE</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">ROUNDS DCA</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">AVG EXIT PRICE</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">REALIZED P&L</th>
-                  <th className="py-2.5 px-4 font-semibold uppercase">STATUS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1e2638] text-[11px] text-slate-300">
-                <tr className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-4 text-slate-400">cy-0046</td>
-                  <td className="py-3 px-4">01/11/2023</td>
-                  <td className="py-3 px-4 text-center">2</td>
-                  <td className="py-3 px-4">$48,100.00</td>
-                  <td className="py-3 px-4 text-emerald-400 font-bold">+0.42%</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-slate-800 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-700">CLOSED</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-4 text-slate-400">cy-0045</td>
-                  <td className="py-3 px-4">01/11/2023</td>
-                  <td className="py-3 px-4 text-center">2</td>
-                  <td className="py-3 px-4">$48,294.10</td>
-                  <td className="py-3 px-4 text-emerald-400 font-bold">+0.42%</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-slate-800 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-700">CLOSED</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-[#161d2d]/25 transition-colors">
-                  <td className="py-3 px-4 text-slate-400">cy-0044</td>
-                  <td className="py-3 px-4">01/11/2023</td>
-                  <td className="py-3 px-4 text-center">2</td>
-                  <td className="py-3 px-4">$48,100.00</td>
-                  <td className="py-3 px-4 text-emerald-400 font-bold">+0.42%</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-slate-800 text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-700">CLOSED</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                    {/* Expanded orders sub-table */}
+                    {isOpen && (
+                      <tr>
+                        <td colSpan={11} className="p-0 border-b border-[#1e2638]">
+                          <div className="bg-[#0a0e18] border-t border-[#1e2638]/60 px-8 py-3">
+                            <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-2">
+                              <span>Orders in {cycle.cycleId}</span>
+                              <div className="flex-1 h-px bg-[#1e2638]" />
+                              <span>{cycle.orders.length} orders</span>
+                            </div>
+                            <table className="w-full text-left border-collapse text-[11px] font-mono">
+                              <thead>
+                                <tr className="text-[9px] text-slate-600 tracking-wider">
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Order ID</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Side</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Type</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Qty</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Price</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Filled</th>
+                                  <th className="py-1.5 pr-6 font-semibold uppercase">Time</th>
+                                  <th className="py-1.5 font-semibold uppercase">Status</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[#1e2638]/40">
+                                {cycle.orders.map(o => (
+                                  <tr key={o.orderId} className="hover:bg-white/[0.02] transition-colors">
+                                    <td className="py-2 pr-6 text-slate-500">{o.orderId}</td>
+                                    <td className="py-2 pr-6">
+                                      <span className={`font-bold uppercase ${o.side === 'BUY' ? 'text-teal-400' : 'text-rose-400'}`}>{o.side}</span>
+                                    </td>
+                                    <td className="py-2 pr-6 text-slate-500 uppercase">{o.type}</td>
+                                    <td className="py-2 pr-6 text-slate-300">{o.qty.toFixed(6)}</td>
+                                    <td className="py-2 pr-6 text-slate-300">${o.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                                    <td className="py-2 pr-6 text-slate-400">{o.filled.toFixed(6)}</td>
+                                    <td className="py-2 pr-6 text-slate-600">{o.time}</td>
+                                    <td className="py-2">{orderStatusBadge(o.status)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
