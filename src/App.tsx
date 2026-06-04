@@ -7,8 +7,10 @@ import StrategiesView from './components/StrategiesView';
 import BotDetailView from './components/BotDetailView';
 import { AuditLogView, SettingsView } from './components/ExtraViews';
 import ExchangesView from './components/ExchangesView';
+import LoginView from './components/LoginView';
+import AdminManagementView from './components/AdminManagementView';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange } from './types';
+import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser } from './types';
 import {
   INITIAL_USERS,
   INITIAL_BOTS,
@@ -24,6 +26,14 @@ import {
 import { Check, X, AlertTriangle, Play } from 'lucide-react';
 
 export default function App() {
+  // Authentication states
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [activeAdminEmail, setActiveAdminEmail] = useState<string>('admin@tca.cms');
+  const [admins, setAdmins] = useState<AdminUser[]>([
+    { id: 'ADM-101', email: 'admin@tca.cms', role: 'Super Admin', createdDate: '2026-06-01' },
+    { id: 'ADM-102', email: 'jack@tca.cms', role: 'Admin', createdDate: '2026-06-02' }
+  ]);
+
   // Navigation & Drill down context
   const [currentView, setCurrentView] = useState<string>('cu_reports');
   const [selectedUsername, setSelectedUsername] = useState<string>('@cryptodan88');
@@ -175,7 +185,32 @@ export default function App() {
     setTimeout(() => setGeneralToast(null), 3000);
   };
 
+  const handleCreateAdmin = (email: string, role: string) => {
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().split(' ')[0];
 
+    const newAdminId = `ADM-${100 + admins.length + 1}`;
+    const newAdmin: AdminUser = {
+      id: newAdminId,
+      email: email,
+      role: role,
+      createdDate: dateStr
+    };
+
+    setAdmins(prev => [...prev, newAdmin]);
+
+    // Append to admin activities log
+    const newActivity: AdminActivity = {
+      timestamp: timeStr,
+      message: `Created new admin account: ${email} with role ${role} (${newAdminId})`,
+      admin: activeAdminEmail
+    };
+    setAdminActivities(prev => [newActivity, ...prev]);
+
+    setGeneralToast(`Admin account ${email} created successfully!`);
+    setTimeout(() => setGeneralToast(null), 3000);
+  };
 
   // Dummy action for export csv click
   const handleExportCsvClick = () => {
@@ -197,6 +232,27 @@ export default function App() {
     return users.find(u => u.username === selectedUsername) || users[0];
   }, [users, selectedUsername]);
 
+  if (!isLoggedIn) {
+    return (
+      <LoginView
+        onLogin={(email) => {
+          setIsLoggedIn(true);
+          setActiveAdminEmail(email);
+          const now = new Date();
+          const timeStr = now.toTimeString().split(' ')[0];
+          setAdminActivities(prev => [
+            {
+              timestamp: timeStr,
+              message: `CMS session initiated by administrator: ${email}`,
+              admin: email
+            },
+            ...prev
+          ]);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0d121f] text-[#f1f5f9] antialiased" id="quant-admin-dashboard">
       
@@ -206,6 +262,8 @@ export default function App() {
         setCurrentView={setCurrentView}
         userCount={users.length}
         exchangeCount={exchanges.length}
+        adminCount={admins.length}
+        adminEmail={activeAdminEmail}
       />
 
       {/* 2. MAIN COGNITIVE SCREEN CARDS PANELS */}
@@ -295,6 +353,13 @@ export default function App() {
                     onToggleStatus={() => handleToggleBotStatus(activeBotObject.id)}
                   />
                 );
+              case 'admins':
+                return (
+                  <AdminManagementView
+                    admins={admins}
+                    onAddAdmin={handleCreateAdmin}
+                  />
+                );
               case 'audit_log':
                 return (
                   <AuditLogView
@@ -303,7 +368,7 @@ export default function App() {
                       const now = new Date();
                       const timeStr = now.toTimeString().split(' ')[0];
                       setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: '@admin_jack' },
+                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
                         ...prev
                       ]);
                     }}
@@ -318,7 +383,7 @@ export default function App() {
                       const now = new Date();
                       const timeStr = now.toTimeString().split(' ')[0];
                       setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: '@admin_jack' },
+                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
                         ...prev
                       ]);
                     }}
@@ -331,7 +396,7 @@ export default function App() {
                       const now = new Date();
                       const timeStr = now.toTimeString().split(' ')[0];
                       setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: '@admin_jack' },
+                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
                         ...prev
                       ]);
                     }}

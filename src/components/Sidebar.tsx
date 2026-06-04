@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ChevronDown, Check, Landmark, Menu, X } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, Share2, ScrollText, Settings, ChevronDown, Check, Landmark, Menu, X, Shield } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
   setCurrentView: (view: string) => void;
   userCount: number;
   exchangeCount: number;
+  adminCount: number;
+  adminEmail?: string;
 }
 
 interface MenuItem {
@@ -19,13 +21,17 @@ export default function Sidebar({
   currentView,
   setCurrentView,
   userCount,
-  exchangeCount
+  exchangeCount,
+  adminCount,
+  adminEmail = 'admin@tca.cms'
 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const adminName = adminEmail.split('@')[0];
 
   const menuItems: MenuItem[] = [
     { id: 'users', label: 'Users', icon: Users, badge: userCount },
     { id: 'exchanges', label: 'Exchanges', icon: Landmark, badge: exchangeCount },
+    { id: 'admins', label: 'Admins', icon: Shield, badge: adminCount },
     { id: 'strategies', label: 'Strategies', icon: Cpu },
     { id: 'cu_reports', label: 'CU Reports', icon: FileSpreadsheet },
     { id: 'audit_log', label: 'Audit Log', icon: ScrollText },
@@ -111,7 +117,7 @@ export default function Sidebar({
                   <span className="text-xs font-medium text-slate-200">Admin User</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono block">@admin_jack</span>
+                <span className="text-[10px] text-slate-500 font-mono block">@{adminName}</span>
               </div>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
@@ -179,7 +185,7 @@ export default function Sidebar({
                   <span className="text-xs font-medium text-slate-200">Admin User</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono block">@admin_jack</span>
+                <span className="text-[10px] text-slate-500 font-mono block">@{adminName}</span>
               </div>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500" />

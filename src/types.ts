@@ -89,3 +89,10 @@ export interface Exchange {
   status: 'ACTIVE' | 'INACTIVE';
   guideUrl: string;
 }
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: string;
+  createdDate: string;
+}
