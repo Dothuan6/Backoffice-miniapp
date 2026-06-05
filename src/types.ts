@@ -124,6 +124,34 @@ export interface UserTradingStats {
   }[];
 }
 
+export type AiModel = 'claude-3-5-sonnet' | 'claude-3-haiku' | 'claude-3-opus' | 'gpt-4o' | 'gpt-4o-mini' | 'gemini-1.5-pro';
+
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  model: AiModel;
+  systemPrompt: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  totalCalls: number;
+  totalCuSpent: number;
+  lastActive: string;
+}
+
+export interface AiChatLog {
+  id: string;
+  username: string;
+  agentId: string;
+  agentName: string;
+  timestamp: string;
+  question: string;
+  answer: string;
+  inputTokens: number;
+  outputTokens: number;
+  cuCost: number;
+  model: AiModel;
+}
+
 export interface TradingReportRow {
   exchange: string;
   pair: string;

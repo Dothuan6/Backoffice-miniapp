@@ -10,7 +10,7 @@ import ExchangesView from './components/ExchangesView';
 import LoginView from './components/LoginView';
 import AdminManagementView from './components/AdminManagementView';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity } from './types';
+import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity, Agent, AiChatLog } from './types';
 import {
   INITIAL_USERS,
   INITIAL_BOTS,
@@ -26,9 +26,12 @@ import {
   MOCK_ALL_PAYMENTS,
   MOCK_USER_TRADING_STATS,
   MOCK_TRADING_REPORT,
+  INITIAL_AGENTS,
+  MOCK_AI_CHAT_LOGS,
 } from './data';
 import PaymentsAllView from './components/PaymentsAllView';
 import TradingReportView from './components/TradingReportView';
+import AiMonitorView from './components/AiMonitorView';
 import { Check, X, AlertTriangle, Play } from 'lucide-react';
 
 export default function App() {
@@ -56,6 +59,8 @@ export default function App() {
   const [spendEvents, setSpendEvents] = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
   const [dailyBurn, setDailyBurn] = useState<DailyBurn[]>(INITIAL_DAILY_BURN);
   const [strategyActivities] = useState<StrategyActivity[]>(INITIAL_STRATEGY_ACTIVITIES);
+  const [agents, setAgents]             = useState<Agent[]>(INITIAL_AGENTS);
+  const [aiChatLogs] = useState<AiChatLog[]>(MOCK_AI_CHAT_LOGS);
 
 
 
@@ -356,6 +361,14 @@ export default function App() {
                 return <PaymentsAllView payments={MOCK_ALL_PAYMENTS} />;
               case 'trading_report':
                 return <TradingReportView rows={MOCK_TRADING_REPORT} />;
+              case 'ai_monitor':
+                return (
+                  <AiMonitorView
+                    agents={agents}
+                    chatLogs={aiChatLogs}
+                    onUpdateAgent={updated => setAgents(prev => prev.map(a => a.id === updated.id ? updated : a))}
+                  />
+                );
               case 'strategies':
                 return (
                   <StrategiesView
