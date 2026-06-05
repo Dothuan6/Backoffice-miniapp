@@ -10,7 +10,7 @@ import ExchangesView from './components/ExchangesView';
 import LoginView from './components/LoginView';
 import AdminManagementView from './components/AdminManagementView';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity, Agent, AiChatLog } from './types';
+import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity, Agent, AiChatLog, AiSupportModel } from './types';
 import {
   INITIAL_USERS,
   INITIAL_BOTS,
@@ -28,10 +28,12 @@ import {
   MOCK_TRADING_REPORT,
   INITIAL_AGENTS,
   MOCK_AI_CHAT_LOGS,
+  INITIAL_AI_SUPPORT_MODELS,
 } from './data';
 import PaymentsAllView from './components/PaymentsAllView';
 import TradingReportView from './components/TradingReportView';
 import AiMonitorView from './components/AiMonitorView';
+import AiModelsView from './components/AiModelsView';
 import { Check, X, AlertTriangle, Play } from 'lucide-react';
 
 export default function App() {
@@ -61,6 +63,7 @@ export default function App() {
   const [strategyActivities] = useState<StrategyActivity[]>(INITIAL_STRATEGY_ACTIVITIES);
   const [agents, setAgents]             = useState<Agent[]>(INITIAL_AGENTS);
   const [aiChatLogs] = useState<AiChatLog[]>(MOCK_AI_CHAT_LOGS);
+  const [aiSupportModels, setAiSupportModels] = useState<AiSupportModel[]>(INITIAL_AI_SUPPORT_MODELS);
 
 
 
@@ -367,6 +370,15 @@ export default function App() {
                     agents={agents}
                     chatLogs={aiChatLogs}
                     onUpdateAgent={updated => setAgents(prev => prev.map(a => a.id === updated.id ? updated : a))}
+                  />
+                );
+              case 'ai_models':
+                return (
+                  <AiModelsView
+                    models={aiSupportModels}
+                    onAdd={m => setAiSupportModels(prev => [...prev, m])}
+                    onUpdate={m => setAiSupportModels(prev => prev.map(x => x.id === m.id ? m : x))}
+                    onDelete={id => setAiSupportModels(prev => prev.filter(x => x.id !== id))}
                   />
                 );
               case 'strategies':

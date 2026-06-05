@@ -1,5 +1,5 @@
 // Data store — last updated 2026-06-04
-import { User, Bot, SpendEvent, AdminActivity, DailyBurn, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, Exchange, StrategyActivity, UserTradingStats, TradingReportRow, Agent, AiChatLog } from './types';
+import { User, Bot, SpendEvent, AdminActivity, DailyBurn, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, Exchange, StrategyActivity, UserTradingStats, TradingReportRow, Agent, AiChatLog, AiSupportModel } from './types';
 
 export const INITIAL_USERS: User[] = [
   {
@@ -546,6 +546,69 @@ export const MOCK_AI_CHAT_LOGS: AiChatLog[] = [
     question: 'SOL/USDT có đang trong uptrend không?',
     answer: '**SOL/USDT Analysis:** Đang trong uptrend trung hạn sau đáy $142 tháng 5.\n**Key Levels:** Support $168, Resistance $182.\n**Indicators:** RSI 58 (healthy), Volume tăng dần.\n**Outlook:** Bullish nếu hold $168. Break $182 target $198.',
     inputTokens: 30, outputTokens: 138, cuCost: 16.8,
+  },
+];
+
+export const INITIAL_AI_SUPPORT_MODELS: AiSupportModel[] = [
+  {
+    id: 'asm-001',
+    name: 'Claude 3.5 Sonnet',
+    provider: 'Anthropic',
+    modelId: 'claude-3-5-sonnet-20241022',
+    apiKey: 'sk-ant-api03-xK9m...T4vQ',
+    apiEndpoint: 'https://api.anthropic.com/v1/messages',
+    status: 'ACTIVE',
+    addedDate: '2026-01-10',
+  },
+  {
+    id: 'asm-002',
+    name: 'Claude 3 Haiku',
+    provider: 'Anthropic',
+    modelId: 'claude-3-haiku-20240307',
+    apiKey: 'sk-ant-api03-xK9m...T4vQ',
+    apiEndpoint: 'https://api.anthropic.com/v1/messages',
+    status: 'ACTIVE',
+    addedDate: '2026-01-10',
+  },
+  {
+    id: 'asm-003',
+    name: 'Claude 3 Opus',
+    provider: 'Anthropic',
+    modelId: 'claude-3-opus-20240229',
+    apiKey: 'sk-ant-api03-xK9m...T4vQ',
+    apiEndpoint: 'https://api.anthropic.com/v1/messages',
+    status: 'ACTIVE',
+    addedDate: '2026-01-10',
+  },
+  {
+    id: 'asm-004',
+    name: 'GPT-4o',
+    provider: 'OpenAI',
+    modelId: 'gpt-4o',
+    apiKey: 'sk-proj-aB3c...9zKp',
+    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+    status: 'ACTIVE',
+    addedDate: '2026-02-05',
+  },
+  {
+    id: 'asm-005',
+    name: 'GPT-4o Mini',
+    provider: 'OpenAI',
+    modelId: 'gpt-4o-mini',
+    apiKey: 'sk-proj-aB3c...9zKp',
+    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+    status: 'ACTIVE',
+    addedDate: '2026-02-05',
+  },
+  {
+    id: 'asm-006',
+    name: 'Gemini 1.5 Pro',
+    provider: 'Google',
+    modelId: 'gemini-1.5-pro',
+    apiKey: 'AIzaSy-mN2q...77bC',
+    apiEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
+    status: 'INACTIVE',
+    addedDate: '2026-03-18',
   },
 ];
 

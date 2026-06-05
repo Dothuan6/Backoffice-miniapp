@@ -126,6 +126,17 @@ export interface UserTradingStats {
 
 export type AiModel = 'claude-3-5-sonnet' | 'claude-3-haiku' | 'claude-3-opus' | 'gpt-4o' | 'gpt-4o-mini' | 'gemini-1.5-pro';
 
+export interface AiSupportModel {
+  id: string;
+  name: string;
+  provider: string;
+  modelId: string;
+  apiKey: string;
+  apiEndpoint: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  addedDate: string;
+}
+
 export interface Agent {
   id: string;
   name: string;
