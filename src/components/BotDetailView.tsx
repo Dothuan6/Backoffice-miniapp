@@ -150,6 +150,32 @@ const STRATEGY_CONFIG = [
   ]},
 ];
 
+// ── Temporal log events ──────────────────────────────────────────────────────
+
+interface TemporalLog {
+  time: string;
+  level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+  message: string;
+  runId?: string;
+}
+
+const TEMPORAL_LOGS: TemporalLog[] = [
+  { time: '2026-06-04 09:14:02', level: 'INFO',  message: 'Workflow heartbeat received — cycle cy-0047 still OPEN.',         runId: '01JXK8...7F9S' },
+  { time: '2026-06-04 09:12:10', level: 'INFO',  message: 'WAITING_TP state entered. TP order tp-64e2f3-r0 placed.',          runId: '01JXK8...7F9S' },
+  { time: '2026-06-04 09:12:05', level: 'INFO',  message: 'DCA round 2 filled. Safety order dca-64e2f3-r2 executed.',         runId: '01JXK8...7F9S' },
+  { time: '2026-06-04 08:55:30', level: 'INFO',  message: 'Trailing entry confirmed. Base order bo-64e2f3-r0 FILLED.',        runId: '01JXK8...7F9S' },
+  { time: '2026-06-04 08:50:12', level: 'DEBUG', message: 'Entry trailing deviation threshold reached: -0.52% (target 0.5%).', runId: '01JXK8...7F9S' },
+  { time: '2026-06-04 08:45:00', level: 'INFO',  message: 'Cycle cy-0047 started. Monitoring entry conditions.',              runId: '01JXK8...7F9S' },
+  { time: '2026-06-03 14:45:11', level: 'INFO',  message: 'Cycle cy-0046 CLOSED. TP hit at $48,904.20. PnL +0.42%.',         runId: '01JXK7...4A2R' },
+  { time: '2026-06-03 11:20:44', level: 'INFO',  message: 'DCA round 2 triggered. Price deviation 1.51% exceeded threshold.', runId: '01JXK7...4A2R' },
+  { time: '2026-06-03 08:12:05', level: 'INFO',  message: 'Cycle cy-0046 started. Base order placed via TRAILING entry.',    runId: '01JXK7...4A2R' },
+  { time: '2026-06-02 09:50:00', level: 'WARN',  message: 'Cycle cy-0043 closed via STOP LOSS at $47,522.00. PnL -0.28%.',   runId: '01JXK5...9C1T' },
+  { time: '2026-06-02 09:48:22', level: 'WARN',  message: 'Stop loss threshold triggered: current price below SL level.',    runId: '01JXK5...9C1T' },
+  { time: '2026-06-01 20:05:33', level: 'INFO',  message: 'DCA round 2 safety order filled at $47,410.60.',                  runId: '01JXK5...9C1T' },
+  { time: '2026-06-01 14:20:01', level: 'INFO',  message: 'Cycle cy-0043 started.',                                          runId: '01JXK5...9C1T' },
+  { time: '2026-06-01 09:00:00', level: 'INFO',  message: 'Workflow dca-64e2f3-main-flow started on worker node wk-02.',     runId: '—' },
+];
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const statusBadge = (s: CycleRecord['status']) => {
@@ -406,6 +432,46 @@ export default function BotDetailView({ bot, onBackToStrategies, onToggleStatus 
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+        {/* Temporal Log Events */}
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1e2638]">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-200">Temporal Log Events</h3>
+              <span className="bg-[#1c2333] text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono border border-[#2a354d]">
+                {TEMPORAL_LOGS.length}
+              </span>
+            </div>
+            <span className="bg-emerald-950/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/25 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              LIVE
+            </span>
+          </div>
+          <div className="divide-y divide-[#1e2638] max-h-72 overflow-y-auto">
+            {TEMPORAL_LOGS.map((log, i) => (
+              <div key={i} className="flex items-start gap-3 px-5 py-2.5 hover:bg-[#161d2d]/25 transition-colors">
+                <span className={`mt-0.5 w-1.5 h-1.5 rounded-full shrink-0 ${
+                  log.level === 'ERROR' ? 'bg-rose-500' :
+                  log.level === 'WARN'  ? 'bg-amber-400' :
+                  log.level === 'INFO'  ? 'bg-blue-400'  : 'bg-slate-500'
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className={`text-[10px] font-mono font-bold shrink-0 ${
+                      log.level === 'ERROR' ? 'text-rose-400' :
+                      log.level === 'WARN'  ? 'text-amber-400' :
+                      log.level === 'INFO'  ? 'text-blue-400'  : 'text-slate-500'
+                    }`}>{log.level}</span>
+                    <span className="text-[10px] font-mono text-slate-600 shrink-0">{log.time}</span>
+                  </div>
+                  <p className="text-[11px] font-mono text-slate-300 mt-0.5 leading-snug">{log.message}</p>
+                  {log.runId && (
+                    <span className="text-[9px] font-mono text-slate-600">run: {log.runId}</span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
         </div>{/* end left column */}
