@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, MessageSquare, Edit2, Cpu, Activity, ChevronDown, X, Check, Search, ArrowLeft, User, Zap, Hash } from 'lucide-react';
-import { Agent, AiChatLog, AiModel } from '../types';
+import { Agent, AiChatLog, AiModel } from '../../types';
 
 interface AiMonitorViewProps {
   agents: Agent[];

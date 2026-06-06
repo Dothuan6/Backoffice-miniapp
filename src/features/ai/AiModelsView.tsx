@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, X, Check, ToggleLeft, ToggleRight } from 'lucide-react';
-import { AiSupportModel } from '../types';
+import { AiSupportModel } from '../../types';
 
 interface AiModelsViewProps {
   models: AiSupportModel[];

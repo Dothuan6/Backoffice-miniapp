@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CreditCard, Search, Filter } from 'lucide-react';
-import { PaymentRecord } from '../types';
+import { PaymentRecord } from '../../types';
 
 interface PaymentsAllViewProps {
   payments: PaymentRecord[];

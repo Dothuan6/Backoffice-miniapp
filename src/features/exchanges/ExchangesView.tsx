@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Search, ExternalLink, Edit2, Trash2, Globe, Check, AlertTriangle, X, BookOpen } from 'lucide-react';
-import { Exchange } from '../types';
+import { Exchange } from '../../types';
 
 interface ExchangesViewProps {
   exchanges: Exchange[];

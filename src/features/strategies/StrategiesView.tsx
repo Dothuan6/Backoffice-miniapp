@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, RefreshCw, Eye, Settings, Trash2, Sliders, Check, CircleAlert, Pause, Play } from 'lucide-react';
-import { Bot } from '../types';
+import { Bot } from '../../types';
 
 interface StrategiesViewProps {
   bots: Bot[];

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Eye, Edit2, ChevronDown, Check, X, ShieldAlert, FileDown, ArrowDown } from 'lucide-react';
-import { User } from '../types';
+import { User } from '../../types';
 
 interface UsersViewProps {
   users: User[];

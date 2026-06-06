@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronRight, CreditCard, Play, Pause, Key, Copy, Check, Plus, Minus, Award, ArrowLeft, Lock, Unlock, TrendingUp, TrendingDown, BarChart2 } from 'lucide-react';
-import { User, Bot, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, AdminActivity, UserTradingStats } from '../types';
+import { User, Bot, CUHistoryRecord, UserApiKey, PaymentRecord, ReferralsInfo, AdminActivity, UserTradingStats } from '../../types';
 
 interface UserProfileViewProps {
   user: User;

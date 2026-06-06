@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Plus, Search, UserCheck, X, Eye, EyeOff } from 'lucide-react';
-import { AdminUser } from '../types';
+import { AdminUser } from '../../types';
 
 interface AdminManagementViewProps {
   admins: AdminUser[];

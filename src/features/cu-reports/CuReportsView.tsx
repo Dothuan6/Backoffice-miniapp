@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CreditCard, Users, Info, TrendingUp, Activity, Pause, Square } from 'lucide-react';
-import { SpendEvent, DailyBurn, StrategyActivity } from '../types';
+import { SpendEvent, DailyBurn, StrategyActivity } from '../../types';
 
 interface CuReportsViewProps {
   totalSpent: number;

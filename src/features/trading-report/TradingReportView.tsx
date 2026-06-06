@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart2, TrendingUp, TrendingDown, ArrowUpDown } from 'lucide-react';
-import { TradingReportRow } from '../types';
+import { TradingReportRow } from '../../types';
 
 interface TradingReportViewProps {
   rows: TradingReportRow[];

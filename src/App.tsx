@@ -1,286 +1,340 @@
 import React, { useState, useMemo } from 'react';
-import Sidebar from './components/Sidebar';
-import CuReportsView from './components/CuReportsView';
-import UsersView from './components/UsersView';
-import UserProfileView from './components/UserProfileView';
-import StrategiesView from './components/StrategiesView';
-import BotDetailView from './components/BotDetailView';
-import { AuditLogView, SettingsView } from './components/ExtraViews';
-import ExchangesView from './components/ExchangesView';
-import LoginView from './components/LoginView';
-import AdminManagementView from './components/AdminManagementView';
+import { Check, AlertTriangle } from 'lucide-react';
 
-import { User, Bot, CUHistoryRecord, SpendEvent, DailyBurn, AdminActivity, Exchange, AdminUser, StrategyActivity, Agent, AiChatLog, AiSupportModel } from './types';
+// Shared
+import Sidebar from './shared/components/Sidebar';
+import { ROUTES } from './shared/constants/routes';
+
+// Feature views
+import LoginView            from './features/auth/LoginView';
+import CuReportsView        from './features/cu-reports/CuReportsView';
+import UsersView            from './features/users/UsersView';
+import UserProfileView      from './features/users/UserProfileView';
+import StrategiesView       from './features/strategies/StrategiesView';
+import BotDetailView        from './features/strategies/BotDetailView';
+import PaymentsAllView      from './features/payments/PaymentsAllView';
+import TradingReportView    from './features/trading-report/TradingReportView';
+import AiMonitorView        from './features/ai/AiMonitorView';
+import AiModelsView         from './features/ai/AiModelsView';
+import ExchangesView        from './features/exchanges/ExchangesView';
+import AdminManagementView  from './features/admins/AdminManagementView';
+import AuditLogView         from './features/audit-log/AuditLogView';
+import SettingsView         from './features/settings/SettingsView';
+
+// Types
 import {
-  INITIAL_USERS,
-  INITIAL_BOTS,
-  INITIAL_SPEND_EVENTS,
-  INITIAL_DAILY_BURN,
-  INITIAL_ADMIN_ACTIVITY,
-  MOCK_CU_HISTORY,
-  MOCK_API_KEYS,
-  MOCK_PAYMENTS,
-  MOCK_REFERRALS,
-  INITIAL_EXCHANGES,
-  INITIAL_STRATEGY_ACTIVITIES,
-  MOCK_ALL_PAYMENTS,
-  MOCK_USER_TRADING_STATS,
-  MOCK_TRADING_REPORT,
-  INITIAL_AGENTS,
-  MOCK_AI_CHAT_LOGS,
-  INITIAL_AI_SUPPORT_MODELS,
-} from './data';
-import PaymentsAllView from './components/PaymentsAllView';
-import TradingReportView from './components/TradingReportView';
-import AiMonitorView from './components/AiMonitorView';
-import AiModelsView from './components/AiModelsView';
-import { Check, X, AlertTriangle, Play } from 'lucide-react';
+  User, Bot, CUHistoryRecord, SpendEvent, DailyBurn,
+  AdminActivity, Exchange, AdminUser, StrategyActivity,
+  Agent, AiChatLog, AiSupportModel,
+} from './types';
+
+// Feature data
+import { INITIAL_SPEND_EVENTS, INITIAL_DAILY_BURN, INITIAL_STRATEGY_ACTIVITIES } from './features/cu-reports/data';
+import { INITIAL_USERS, MOCK_CU_HISTORY, MOCK_API_KEYS, MOCK_PAYMENTS, MOCK_REFERRALS, MOCK_USER_TRADING_STATS } from './features/users/data';
+import { INITIAL_BOTS }              from './features/strategies/data';
+import { MOCK_ALL_PAYMENTS }         from './features/payments/data';
+import { MOCK_TRADING_REPORT }       from './features/trading-report/data';
+import { INITIAL_AGENTS, MOCK_AI_CHAT_LOGS, INITIAL_AI_SUPPORT_MODELS } from './features/ai/data';
+import { INITIAL_EXCHANGES }         from './features/exchanges/data';
+import { INITIAL_ADMIN_ACTIVITY }    from './features/audit-log/data';
 
 export default function App() {
-  // Authentication states
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  const [isLoggedIn, setIsLoggedIn]           = useState<boolean>(false);
   const [activeAdminEmail, setActiveAdminEmail] = useState<string>('admin@tca.cms');
   const [admins, setAdmins] = useState<AdminUser[]>([
     { id: 'ADM-101', email: 'admin@tca.cms', role: 'Super Admin', createdDate: '2026-06-01' },
-    { id: 'ADM-102', email: 'jack@tca.cms', role: 'Admin', createdDate: '2026-06-02' }
+    { id: 'ADM-102', email: 'jack@tca.cms',  role: 'Admin',       createdDate: '2026-06-02' },
   ]);
 
-  // Navigation & Drill down context
-  const [currentView, setCurrentView] = useState<string>('cu_reports');
+  // ── Navigation ────────────────────────────────────────────────────────────
+  const [currentView,      setCurrentView]      = useState<string>(ROUTES.CU_REPORTS);
   const [selectedUsername, setSelectedUsername] = useState<string>('@cryptodan88');
-  const [selectedBotId, setSelectedBotId] = useState<string>('S-99201');
+  const [selectedBotId,    setSelectedBotId]    = useState<string>('S-99201');
 
-  // Unified State Engine
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
-  const [bots, setBots] = useState<Bot[]>(INITIAL_BOTS);
-  const [cuHistory, setCuHistory] = useState<Record<string, CUHistoryRecord[]>>(MOCK_CU_HISTORY);
+  // ── Domain state ─────────────────────────────────────────────────────────
+  const [users,         setUsers]         = useState<User[]>(INITIAL_USERS);
+  const [bots,          setBots]          = useState<Bot[]>(INITIAL_BOTS);
+  const [cuHistory,     setCuHistory]     = useState<Record<string, CUHistoryRecord[]>>(MOCK_CU_HISTORY);
   const [adminActivities, setAdminActivities] = useState<AdminActivity[]>(INITIAL_ADMIN_ACTIVITY);
-  const [exchanges, setExchanges] = useState<Exchange[]>(INITIAL_EXCHANGES);
-
-  // Spend and burn states
-  const [spendEvents, setSpendEvents] = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
-  const [dailyBurn, setDailyBurn] = useState<DailyBurn[]>(INITIAL_DAILY_BURN);
-  const [strategyActivities] = useState<StrategyActivity[]>(INITIAL_STRATEGY_ACTIVITIES);
-  const [agents, setAgents]             = useState<Agent[]>(INITIAL_AGENTS);
-  const [aiChatLogs] = useState<AiChatLog[]>(MOCK_AI_CHAT_LOGS);
+  const [exchanges,     setExchanges]     = useState<Exchange[]>(INITIAL_EXCHANGES);
+  const [spendEvents,   setSpendEvents]   = useState<SpendEvent[]>(INITIAL_SPEND_EVENTS);
+  const [dailyBurn,     setDailyBurn]     = useState<DailyBurn[]>(INITIAL_DAILY_BURN);
+  const [strategyActivities]              = useState<StrategyActivity[]>(INITIAL_STRATEGY_ACTIVITIES);
+  const [agents,        setAgents]        = useState<Agent[]>(INITIAL_AGENTS);
+  const [aiChatLogs]                      = useState<AiChatLog[]>(MOCK_AI_CHAT_LOGS);
   const [aiSupportModels, setAiSupportModels] = useState<AiSupportModel[]>(INITIAL_AI_SUPPORT_MODELS);
 
+  // ── Mutation tracking ─────────────────────────────────────────────────────
+  const [originalBots,    setOriginalBots]    = useState<Bot[]>(INITIAL_BOTS);
+  const [pendingChanges,  setPendingChanges]  = useState<Record<string, 'TOGGLE' | 'DELETE' | 'ADJUST'>>({});
+  const [editingUser,     setEditingUser]     = useState<User | null>(null);
 
-
-  // Mutation Engine (Tracks pending bot modifications or status updates before committing)
-  const [originalBots, setOriginalBots] = useState<Bot[]>(INITIAL_BOTS);
-  const [pendingChanges, setPendingChanges] = useState<Record<string, 'TOGGLE' | 'DELETE' | 'ADJUST'>>({});
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-
-  // Toasts
+  // ── Toast state ───────────────────────────────────────────────────────────
   const [showExportToast, setShowExportToast] = useState(false);
-  const [generalToast, setGeneralToast] = useState<string | null>(null);
+  const [generalToast,    setGeneralToast]    = useState<string | null>(null);
 
-  // Dynamic values
+  // ── Derived values ────────────────────────────────────────────────────────
   const totalSpentCU = useMemo(() => {
-    return spendEvents.reduce((acc, curr) => acc + curr.spent, 0) + 
+    return spendEvents.reduce((acc, curr) => acc + curr.spent, 0) +
       users.reduce((acc, u) => acc + (INITIAL_USERS.find(iu => iu.username === u.username)?.cuBalance || 0) - u.cuBalance, 0);
   }, [spendEvents, users]);
 
   const activeUsersCount = useMemo(() => {
-    return users.filter(u => u.status === 'ONLINE').length + 800; // adding baseline to match screenshot's 832
+    return users.filter(u => u.status === 'ONLINE').length + 800;
   }, [users]);
 
-  // View Drill-down Helpers
+  const activeBotObject = useMemo(() => bots.find(b => b.id === selectedBotId) || bots[0], [bots, selectedBotId]);
+  const activeUserObject = useMemo(() => users.find(u => u.username === selectedUsername) || users[0], [users, selectedUsername]);
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const appendAdminLog = (message: string, admin?: string) => {
+    const timeStr = new Date().toTimeString().split(' ')[0];
+    setAdminActivities(prev => [{ timestamp: timeStr, message, admin: admin || activeAdminEmail }, ...prev]);
+  };
+
+  const showToast = (message: string, duration = 3000) => {
+    setGeneralToast(message);
+    setTimeout(() => setGeneralToast(null), duration);
+  };
+
+  // ── Navigation handlers ───────────────────────────────────────────────────
   const handleViewUserProfile = (username: string) => {
     setSelectedUsername(username);
-    setCurrentView('user-profile');
+    setCurrentView(ROUTES.USER_PROFILE);
   };
 
   const handleViewBotDetail = (botId: string) => {
     setSelectedBotId(botId);
-    setCurrentView('bot-detail');
+    setCurrentView(ROUTES.BOT_DETAIL);
   };
 
-  // State manipulation: Dynamic CU Balance Adjustment from User Profile modal
+  // ── CU balance handlers ───────────────────────────────────────────────────
   const handleModifyCuBalance = (username: string, amount: number, description: string) => {
-    // Update balance
-    setUsers(prevUsers =>
-      prevUsers.map(u =>
-        u.username === username
-          ? { ...u, cuBalance: Math.max(0, u.cuBalance + amount) }
-          : u
-      )
-    );
+    setUsers(prev => prev.map(u =>
+      u.username === username ? { ...u, cuBalance: Math.max(0, u.cuBalance + amount) } : u
+    ));
 
-    // Dynamic timestamp helper
-    const now = new Date();
-    const timeStr = now.toTimeString().split(' ')[0]; // E.g., 10:15:22
-    const dateStr = now.toISOString().split('T')[0]; // E.g., 2026-06-04
+    const now      = new Date();
+    const dateStr  = now.toISOString().split('T')[0];
+    const timeStr  = now.toTimeString().split(' ')[0];
+    const newTxId  = `tx-${Math.floor(100 + Math.random() * 900)}`;
 
-    // Append history
-    const newTxId = `tx-${Math.floor(100 + Math.random() * 900)}`;
     const newRecord: CUHistoryRecord = {
       id: newTxId,
       timestamp: `${dateStr} ${timeStr.slice(0, 5)}`,
       type: amount >= 0 ? 'ADJUST' : 'SPENT',
-      amount: amount,
-      description: description
+      amount,
+      description,
     };
 
-    setCuHistory(prev => ({
-      ...prev,
-      [username]: [newRecord, ...(prev[username] || [])]
-    }));
-
-    // Append admin activity
-    const newActivity: AdminActivity = {
-      timestamp: timeStr,
-      message: `Balance adjusted for ${username}: ${amount >= 0 ? '+' : ''}${amount.toLocaleString()} CU (${newTxId})`,
-      admin: '@admin_jack'
-    };
-    setAdminActivities(prev => [newActivity, ...prev]);
-
-    // Update Daily chart metrics slightly to illustrate dynamic shifts!
+    setCuHistory(prev => ({ ...prev, [username]: [newRecord, ...(prev[username] || [])] }));
+    appendAdminLog(`Balance adjusted for ${username}: ${amount >= 0 ? '+' : ''}${amount.toLocaleString()} CU (${newTxId})`, '@admin_jack');
     setDailyBurn(prev =>
-      prev.map((d, id) => (id === prev.length - 1 ? { ...d, spent: d.spent + Math.abs(amount) / 10 } : d))
+      prev.map((d, i) => (i === prev.length - 1 ? { ...d, spent: d.spent + Math.abs(amount) / 10 } : d))
     );
-
-    setGeneralToast(`CU Balance adjusted successfully by ${amount >= 0 ? '+' : ''}${amount.toLocaleString()} for ${username}`);
-    setTimeout(() => setGeneralToast(null), 3000);
+    showToast(`CU Balance adjusted successfully by ${amount >= 0 ? '+' : ''}${amount.toLocaleString()} for ${username}`);
   };
 
   const handleToggleLock = (username: string) => {
-    setUsers(prev => prev.map(u => u.username === username ? { ...u, locked: !u.locked } : u));
-    const now = new Date();
-    const timeStr = now.toTimeString().split(' ')[0];
-    const user = users.find(u => u.username === username);
+    const user   = users.find(u => u.username === username);
     const action = user?.locked ? 'unlocked' : 'locked';
-    setAdminActivities(prev => [{ timestamp: timeStr, message: `Account ${action}: ${username}`, admin: activeAdminEmail }, ...prev]);
+    setUsers(prev => prev.map(u => u.username === username ? { ...u, locked: !u.locked } : u));
+    appendAdminLog(`Account ${action}: ${username}`);
   };
 
-  // Bot Status toggles (adds mutations list)
+  // ── Bot mutation handlers ─────────────────────────────────────────────────
   const handleToggleBotStatus = (botId: string) => {
-    setBots(prevBots =>
-      prevBots.map(b => {
-        if (b.id === botId) {
-          const nextStatus = b.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-          return { ...b, status: nextStatus };
-        }
-        return b;
-      })
-    );
-
-    setPendingChanges(prev => ({
-      ...prev,
-      [botId]: 'TOGGLE'
-    }));
+    setBots(prev => prev.map(b =>
+      b.id === botId ? { ...b, status: b.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE' } : b
+    ));
+    setPendingChanges(prev => ({ ...prev, [botId]: 'TOGGLE' }));
   };
 
-  // Dry deletion (mark pending delete or execute dry filter)
   const handleDeleteBot = (botId: string) => {
     setBots(prev => prev.filter(b => b.id !== botId));
-    setPendingChanges(prev => ({
-      ...prev,
-      [botId]: 'DELETE'
-    }));
+    setPendingChanges(prev => ({ ...prev, [botId]: 'DELETE' }));
   };
 
-  // Save changes callback (Apply modifications / Commit changes bottom widgets)
   const handleApplyPendingChanges = () => {
     setOriginalBots(bots);
     setPendingChanges({});
-
-    // Append summary admin audit logs
-    const now = new Date();
-    const timeStr = now.toTimeString().split(' ')[0];
-    const newActivity: AdminActivity = {
-      timestamp: timeStr,
-      message: `Committed strategy adjustments. Redeployed live container instances.`,
-      admin: '@admin_jack'
-    };
-    setAdminActivities(prev => [newActivity, ...prev]);
-
-    setGeneralToast('Changes successfully applied to live production trading containers!');
-    setTimeout(() => setGeneralToast(null), 3500);
+    appendAdminLog('Committed strategy adjustments. Redeployed live container instances.', '@admin_jack');
+    showToast('Changes successfully applied to live production trading containers!', 3500);
   };
 
-  // Discard changes callback
   const handleDiscardPendingChanges = () => {
     setBots(originalBots);
     setPendingChanges({});
-
-    setGeneralToast('Pending container mutations discarded successfully.');
-    setTimeout(() => setGeneralToast(null), 3000);
+    showToast('Pending container mutations discarded successfully.');
   };
 
+  // ── Admin handlers ────────────────────────────────────────────────────────
   const handleCreateAdmin = (email: string, role: string) => {
-    const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
-    const timeStr = now.toTimeString().split(' ')[0];
-
+    const dateStr    = new Date().toISOString().split('T')[0];
     const newAdminId = `ADM-${100 + admins.length + 1}`;
-    const newAdmin: AdminUser = {
-      id: newAdminId,
-      email: email,
-      role: role,
-      createdDate: dateStr
-    };
-
-    setAdmins(prev => [...prev, newAdmin]);
-
-    // Append to admin activities log
-    const newActivity: AdminActivity = {
-      timestamp: timeStr,
-      message: `Created new admin account: ${email} with role ${role} (${newAdminId})`,
-      admin: activeAdminEmail
-    };
-    setAdminActivities(prev => [newActivity, ...prev]);
-
-    setGeneralToast(`Admin account ${email} created successfully!`);
-    setTimeout(() => setGeneralToast(null), 3000);
+    setAdmins(prev => [...prev, { id: newAdminId, email, role, createdDate: dateStr }]);
+    appendAdminLog(`Created new admin account: ${email} with role ${role} (${newAdminId})`);
+    showToast(`Admin account ${email} created successfully!`);
   };
 
-  // Dummy action for export csv click
   const handleExportCsvClick = () => {
     setShowExportToast(true);
-    // Auto clear after 4 seconds
-    setTimeout(() => {
-      setShowExportToast(false);
-    }, 4500);
+    setTimeout(() => setShowExportToast(false), 4500);
   };
 
-
-  // Retrieve details for inspected bot
-  const activeBotObject = useMemo(() => {
-    return bots.find(b => b.id === selectedBotId) || bots[0];
-  }, [bots, selectedBotId]);
-
-  // Retrieve details for inspected user profile
-  const activeUserObject = useMemo(() => {
-    return users.find(u => u.username === selectedUsername) || users[0];
-  }, [users, selectedUsername]);
-
+  // ── Login screen ──────────────────────────────────────────────────────────
   if (!isLoggedIn) {
     return (
       <LoginView
         onLogin={(email) => {
           setIsLoggedIn(true);
           setActiveAdminEmail(email);
-          const now = new Date();
-          const timeStr = now.toTimeString().split(' ')[0];
-          setAdminActivities(prev => [
-            {
-              timestamp: timeStr,
-              message: `CMS session initiated by administrator: ${email}`,
-              admin: email
-            },
-            ...prev
-          ]);
+          appendAdminLog(`CMS session initiated by administrator: ${email}`, email);
         }}
       />
     );
   }
 
+  // ── Router ────────────────────────────────────────────────────────────────
+  const renderView = () => {
+    switch (currentView) {
+      case ROUTES.CU_REPORTS:
+        return (
+          <CuReportsView
+            totalSpent={totalSpentCU}
+            activeUsersCount={activeUsersCount}
+            spendEvents={spendEvents}
+            dailyBurn={dailyBurn}
+            strategyActivities={strategyActivities}
+          />
+        );
+
+      case ROUTES.USERS:
+        return (
+          <UsersView
+            users={users}
+            onViewProfile={handleViewUserProfile}
+            onEditUserClick={(user) => {
+              setSelectedUsername(user.username);
+              setCurrentView(ROUTES.USER_PROFILE);
+            }}
+            onExportCsv={handleExportCsvClick}
+            showExportToast={showExportToast}
+            setShowExportToast={setShowExportToast}
+          />
+        );
+
+      case ROUTES.USER_PROFILE:
+        return (
+          <UserProfileView
+            user={activeUserObject}
+            bots={bots}
+            cuHistory={cuHistory[activeUserObject.username] || []}
+            apiKeys={MOCK_API_KEYS[activeUserObject.username] || []}
+            payments={MOCK_PAYMENTS[activeUserObject.username] || []}
+            referrals={MOCK_REFERRALS[activeUserObject.username] || {
+              referralCode: activeUserObject.referralCode,
+              clicks: 0, signups: 0, activeReferrals: 0, totalEarningsCu: 0,
+              referredUsers: [],
+            }}
+            tradingStats={MOCK_USER_TRADING_STATS[activeUserObject.username]}
+            adminActivities={adminActivities.filter(a =>
+              a.message.includes(activeUserObject.username) || a.message.includes('Committed')
+            )}
+            onBackToList={() => setCurrentView(ROUTES.USERS)}
+            onModifyCuBalance={handleModifyCuBalance}
+            onToggleBot={handleToggleBotStatus}
+            onToggleLock={handleToggleLock}
+          />
+        );
+
+      case ROUTES.PAYMENTS_ALL:
+        return <PaymentsAllView payments={MOCK_ALL_PAYMENTS} />;
+
+      case ROUTES.TRADING_REPORT:
+        return <TradingReportView rows={MOCK_TRADING_REPORT} />;
+
+      case ROUTES.AI_MONITOR:
+        return (
+          <AiMonitorView
+            agents={agents}
+            chatLogs={aiChatLogs}
+            onUpdateAgent={updated => setAgents(prev => prev.map(a => a.id === updated.id ? updated : a))}
+          />
+        );
+
+      case ROUTES.AI_MODELS:
+        return (
+          <AiModelsView
+            models={aiSupportModels}
+            onAdd={m => setAiSupportModels(prev => [...prev, m])}
+            onUpdate={m => setAiSupportModels(prev => prev.map(x => x.id === m.id ? m : x))}
+            onDelete={id => setAiSupportModels(prev => prev.filter(x => x.id !== id))}
+          />
+        );
+
+      case ROUTES.STRATEGIES:
+        return (
+          <StrategiesView
+            bots={bots}
+            onViewBotDetail={handleViewBotDetail}
+            onToggleBotStatus={handleToggleBotStatus}
+            onDeleteBot={handleDeleteBot}
+            onApplyPendingChanges={handleApplyPendingChanges}
+            onDiscardPendingChanges={handleDiscardPendingChanges}
+            pendingChangesCount={Object.keys(pendingChanges).length}
+          />
+        );
+
+      case ROUTES.BOT_DETAIL:
+        return (
+          <BotDetailView
+            bot={activeBotObject}
+            onBackToStrategies={() => setCurrentView(ROUTES.STRATEGIES)}
+            onToggleStatus={() => handleToggleBotStatus(activeBotObject.id)}
+          />
+        );
+
+      case ROUTES.ADMINS:
+        return <AdminManagementView admins={admins} onAddAdmin={handleCreateAdmin} />;
+
+      case ROUTES.AUDIT_LOG:
+        return (
+          <AuditLogView
+            logs={adminActivities}
+            onAddLog={(msg) => appendAdminLog(msg)}
+          />
+        );
+
+      case ROUTES.EXCHANGES:
+        return (
+          <ExchangesView
+            exchanges={exchanges}
+            setExchanges={setExchanges}
+            onAddLog={(msg) => appendAdminLog(msg)}
+          />
+        );
+
+      case ROUTES.SETTINGS:
+        return <SettingsView onAddLog={(msg) => appendAdminLog(msg)} />;
+
+      default:
+        return (
+          <CuReportsView
+            totalSpent={totalSpentCU}
+            activeUsersCount={activeUsersCount}
+            spendEvents={spendEvents}
+            dailyBurn={dailyBurn}
+            strategyActivities={strategyActivities}
+          />
+        );
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0d121f] text-[#f1f5f9] antialiased" id="quant-admin-dashboard">
-      
-      {/* 1. SIDE NAVIGATION ELEMENT */}
+
       <Sidebar
         currentView={currentView}
         setCurrentView={setCurrentView}
@@ -290,12 +344,9 @@ export default function App() {
         adminEmail={activeAdminEmail}
       />
 
-      {/* 2. MAIN COGNITIVE SCREEN CARDS PANELS */}
       <main className="flex-1 overflow-y-auto flex flex-col h-full bg-[#080c14] relative pb-28 pt-14 md:pt-0" id="quant-main-workspace">
-        
 
-
-        {/* Global Floating Success Action Toasts */}
+        {/* Global success toast */}
         {generalToast && (
           <div className="fixed top-6 right-6 z-50 bg-[#121f1a] text-slate-100 border border-emerald-500/20 shadow-2xl p-4.5 rounded-xl max-w-sm flex items-start gap-3 animate-slide-down">
             <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
@@ -308,164 +359,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Dynamic Inner Layout Body */}
         <div className="p-4 md:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto" id="inner-workspace-container">
-          {(() => {
-            switch (currentView) {
-              case 'cu_reports':
-                return (
-                  <CuReportsView
-                    totalSpent={totalSpentCU}
-                    activeUsersCount={activeUsersCount}
-                    spendEvents={spendEvents}
-                    dailyBurn={dailyBurn}
-                    strategyActivities={strategyActivities}
-                  />
-                );
-              case 'users':
-                return (
-                  <UsersView
-                    users={users}
-                    onViewProfile={handleViewUserProfile}
-                    onEditUserClick={(user) => {
-                      setSelectedUsername(user.username);
-                      setCurrentView('user-profile');
-                    }}
-                    onExportCsv={handleExportCsvClick}
-                    showExportToast={showExportToast}
-                    setShowExportToast={setShowExportToast}
-                  />
-                );
-              case 'user-profile':
-                return (
-                  <UserProfileView
-                    user={activeUserObject}
-                    bots={bots}
-                    cuHistory={cuHistory[activeUserObject.username] || []}
-                    apiKeys={MOCK_API_KEYS[activeUserObject.username] || []}
-                    payments={MOCK_PAYMENTS[activeUserObject.username] || []}
-                    referrals={MOCK_REFERRALS[activeUserObject.username] || {
-                      referralCode: 'DAN88QUANT',
-                      clicks: 0,
-                      signups: 0,
-                      activeReferrals: 0,
-                      totalEarningsCu: 0,
-                      referredUsers: []
-                    }}
-                    tradingStats={MOCK_USER_TRADING_STATS[activeUserObject.username]}
-                    adminActivities={adminActivities.filter(a => a.message.includes(activeUserObject.username) || a.message.includes('Committed'))}
-                    onBackToList={() => setCurrentView('users')}
-                    onModifyCuBalance={handleModifyCuBalance}
-                    onToggleBot={handleToggleBotStatus}
-                    onToggleLock={handleToggleLock}
-                  />
-                );
-              case 'payments_all':
-                return <PaymentsAllView payments={MOCK_ALL_PAYMENTS} />;
-              case 'trading_report':
-                return <TradingReportView rows={MOCK_TRADING_REPORT} />;
-              case 'ai_monitor':
-                return (
-                  <AiMonitorView
-                    agents={agents}
-                    chatLogs={aiChatLogs}
-                    onUpdateAgent={updated => setAgents(prev => prev.map(a => a.id === updated.id ? updated : a))}
-                  />
-                );
-              case 'ai_models':
-                return (
-                  <AiModelsView
-                    models={aiSupportModels}
-                    onAdd={m => setAiSupportModels(prev => [...prev, m])}
-                    onUpdate={m => setAiSupportModels(prev => prev.map(x => x.id === m.id ? m : x))}
-                    onDelete={id => setAiSupportModels(prev => prev.filter(x => x.id !== id))}
-                  />
-                );
-              case 'strategies':
-                return (
-                  <StrategiesView
-                    bots={bots}
-                    onViewBotDetail={handleViewBotDetail}
-                    onToggleBotStatus={handleToggleBotStatus}
-                    onDeleteBot={handleDeleteBot}
-                    onApplyPendingChanges={handleApplyPendingChanges}
-                    onDiscardPendingChanges={handleDiscardPendingChanges}
-                    pendingChangesCount={Object.keys(pendingChanges).length}
-                  />
-                );
-              case 'bot-detail':
-                return (
-                  <BotDetailView
-                    bot={activeBotObject}
-                    onBackToStrategies={() => setCurrentView('strategies')}
-                    onToggleStatus={() => handleToggleBotStatus(activeBotObject.id)}
-                  />
-                );
-              case 'admins':
-                return (
-                  <AdminManagementView
-                    admins={admins}
-                    onAddAdmin={handleCreateAdmin}
-                  />
-                );
-              case 'audit_log':
-                return (
-                  <AuditLogView
-                    logs={adminActivities}
-                    onAddLog={(msg) => {
-                      const now = new Date();
-                      const timeStr = now.toTimeString().split(' ')[0];
-                      setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
-                        ...prev
-                      ]);
-                    }}
-                  />
-                );
-              case 'exchanges':
-                return (
-                  <ExchangesView
-                    exchanges={exchanges}
-                    setExchanges={setExchanges}
-                    onAddLog={(msg) => {
-                      const now = new Date();
-                      const timeStr = now.toTimeString().split(' ')[0];
-                      setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
-                        ...prev
-                      ]);
-                    }}
-                  />
-                );
-              case 'settings':
-                return (
-                  <SettingsView
-                    onAddLog={(msg) => {
-                      const now = new Date();
-                      const timeStr = now.toTimeString().split(' ')[0];
-                      setAdminActivities(prev => [
-                        { timestamp: timeStr, message: msg, admin: activeAdminEmail },
-                        ...prev
-                      ]);
-                    }}
-                  />
-                );
-              default:
-                return (
-                  <CuReportsView
-                    totalSpent={totalSpentCU}
-                    activeUsersCount={activeUsersCount}
-                    spendEvents={spendEvents}
-                    dailyBurn={dailyBurn}
-                    strategyActivities={strategyActivities}
-                  />
-                );
-            }
-          })()}
+          {renderView()}
         </div>
 
-        {/* Global Mutation stick-bar indicators to reflect edits also on Dashboard page or others */}
-        {Object.keys(pendingChanges).length > 0 && currentView !== 'strategies' && (
+        {/* Pending mutations banner */}
+        {Object.keys(pendingChanges).length > 0 && currentView !== ROUTES.STRATEGIES && (
           <div
             id="global-sticky-mutation-bar"
             className="fixed bottom-0 left-0 right-0 z-40 bg-[#0c0e15] border-t border-blue-500/20 px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xl select-none"
@@ -476,7 +375,9 @@ export default function App() {
               </div>
               <p className="text-xs text-slate-300 font-mono">
                 <span className="font-bold text-white uppercase mr-1">Mutation Active:</span>
-                Changes are pending for <span className="text-blue-400 font-bold">{Object.keys(pendingChanges).length}</span> trading bots. Commit them to load the container configurations.
+                Changes are pending for{' '}
+                <span className="text-blue-400 font-bold">{Object.keys(pendingChanges).length}</span>{' '}
+                trading bots. Commit them to load the container configurations.
               </p>
             </div>
             <div className="flex items-center gap-3 self-end md:self-auto font-mono text-xs">

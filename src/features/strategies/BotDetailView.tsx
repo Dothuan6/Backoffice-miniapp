@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronRight, ArrowLeft, Copy, Check, Play, Pause, RefreshCw, ChevronDown } from 'lucide-react';
-import { Bot } from '../types';
+import { Bot } from '../../types';
 
 interface BotDetailViewProps {
   bot: Bot;
