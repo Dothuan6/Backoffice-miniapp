@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Cpu, FileSpreadsheet, ScrollText, Settings, ChevronDown, Landmark, Menu, X, Shield, CreditCard, BarChart2, BotMessageSquare, Cpu as CpuIcon, ChevronRight } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, ScrollText, Settings, ChevronDown, Landmark, Menu, X, Shield, CreditCard, BarChart2, BotMessageSquare, Cpu as CpuIcon, ChevronRight, Layers, Zap, Package } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
@@ -26,34 +26,46 @@ export default function Sidebar({
   adminCount,
   adminEmail = 'admin@tca.cms'
 }: SidebarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [aiExpanded, setAiExpanded] = useState(
+  const [mobileOpen,   setMobileOpen]   = useState(false);
+  const [aiExpanded,   setAiExpanded]   = useState(
     currentView === 'ai_monitor' || currentView === 'ai_models'
+  );
+  const [subExpanded,  setSubExpanded]  = useState(
+    currentView === 'sub_cu_events' || currentView === 'sub_cu_packages' || currentView === 'sub_payments'
   );
   const adminName = adminEmail.split('@')[0];
 
-  // Keep AI group expanded when navigating to an AI sub-view
-  const isAiView = currentView === 'ai_monitor' || currentView === 'ai_models';
+  const isAiView  = currentView === 'ai_monitor'    || currentView === 'ai_models';
+  const isSubView = currentView === 'sub_cu_events' || currentView === 'sub_cu_packages' || currentView === 'sub_payments';
 
   const menuItems: MenuItem[] = [
-    { id: 'cu_reports',     label: 'CU Reports',     icon: FileSpreadsheet },
-    { id: 'trading_report', label: 'Trading Report',  icon: BarChart2 },
+    { id: 'cu_reports',     label: 'CU Reports',    icon: FileSpreadsheet },
+    { id: 'trading_report', label: 'Trading Report', icon: BarChart2 },
     {
       id: '__ai_group__',
       label: 'AI',
       icon: BotMessageSquare,
       children: [
-        { id: 'ai_monitor', label: 'AI Monitor',       icon: BotMessageSquare },
+        { id: 'ai_monitor', label: 'AI Monitor',        icon: BotMessageSquare },
         { id: 'ai_models',  label: 'AI Support Models', icon: CpuIcon },
       ],
     },
-    { id: 'users',          label: 'Users',           icon: Users,    badge: userCount },
-    { id: 'strategies',     label: 'Strategies',      icon: Cpu },
-    { id: 'payments_all',   label: 'Payments',        icon: CreditCard },
-    { id: 'exchanges',      label: 'Exchanges',       icon: Landmark, badge: exchangeCount },
-    { id: 'admins',         label: 'Admins',          icon: Shield,   badge: adminCount },
-    { id: 'audit_log',      label: 'Audit Log',       icon: ScrollText },
-    { id: 'settings',       label: 'Settings',        icon: Settings },
+    {
+      id: '__sub_group__',
+      label: 'Subscription',
+      icon: Layers,
+      children: [
+        { id: 'sub_cu_events',   label: 'CU Events',   icon: Zap },
+        { id: 'sub_cu_packages', label: 'CU Packages', icon: Package },
+        { id: 'sub_payments',    label: 'Payments',    icon: CreditCard },
+      ],
+    },
+    { id: 'users',      label: 'Users',      icon: Users,    badge: userCount },
+    { id: 'strategies', label: 'Strategies', icon: Cpu },
+    { id: 'exchanges',  label: 'Exchanges',  icon: Landmark, badge: exchangeCount },
+    { id: 'admins',     label: 'Admins',     icon: Shield,   badge: adminCount },
+    { id: 'audit_log',  label: 'Audit Log',  icon: ScrollText },
+    { id: 'settings',   label: 'Settings',   icon: Settings },
   ];
 
   const handleNav = (id: string) => {
@@ -66,12 +78,20 @@ export default function Sidebar({
 
     // ── Group item (has children) ─────────────────────────────────────────
     if (item.children) {
-      const isGroupActive = isAiView;
-      const expanded = aiExpanded || isAiView;
+      const isAiGroup  = item.id === '__ai_group__';
+      const isSubGroup = item.id === '__sub_group__';
+      const isGroupActive = isAiGroup ? isAiView : isSubView;
+      const expanded      = isAiGroup
+        ? (aiExpanded  || isAiView)
+        : (subExpanded || isSubView);
+      const toggleExpand  = isAiGroup
+        ? () => setAiExpanded(e  => !e)
+        : () => setSubExpanded(e => !e);
+
       return (
         <div key={item.id}>
           <button
-            onClick={() => setAiExpanded(e => !e)}
+            onClick={toggleExpand}
             className={`w-full flex items-center justify-between px-3.5 py-3 rounded-lg text-sm transition-all duration-200 cursor-pointer ${
               isGroupActive
                 ? 'text-blue-400 font-medium bg-[#111827]'

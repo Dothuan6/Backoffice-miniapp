@@ -6,37 +6,39 @@ import Sidebar from './shared/components/Sidebar';
 import { ROUTES } from './shared/constants/routes';
 
 // Feature views
-import LoginView            from './features/auth/LoginView';
-import CuReportsView        from './features/cu-reports/CuReportsView';
-import UsersView            from './features/users/UsersView';
-import UserProfileView      from './features/users/UserProfileView';
-import StrategiesView       from './features/strategies/StrategiesView';
-import BotDetailView        from './features/strategies/BotDetailView';
-import PaymentsAllView      from './features/payments/PaymentsAllView';
-import TradingReportView    from './features/trading-report/TradingReportView';
-import AiMonitorView        from './features/ai/AiMonitorView';
-import AiModelsView         from './features/ai/AiModelsView';
-import ExchangesView        from './features/exchanges/ExchangesView';
-import AdminManagementView  from './features/admins/AdminManagementView';
-import AuditLogView         from './features/audit-log/AuditLogView';
-import SettingsView         from './features/settings/SettingsView';
+import LoginView                  from './features/auth/LoginView';
+import CuReportsView              from './features/cu-reports/CuReportsView';
+import UsersView                  from './features/users/UsersView';
+import UserProfileView            from './features/users/UserProfileView';
+import StrategiesView             from './features/strategies/StrategiesView';
+import BotDetailView              from './features/strategies/BotDetailView';
+import TradingReportView          from './features/trading-report/TradingReportView';
+import AiMonitorView              from './features/ai/AiMonitorView';
+import AiModelsView               from './features/ai/AiModelsView';
+import ExchangesView              from './features/exchanges/ExchangesView';
+import AdminManagementView        from './features/admins/AdminManagementView';
+import AuditLogView               from './features/audit-log/AuditLogView';
+import SettingsView               from './features/settings/SettingsView';
+import CuEventsView               from './features/subscription/CuEventsView';
+import CuPackagesView             from './features/subscription/CuPackagesView';
+import SubscriptionPaymentsView   from './features/subscription/SubscriptionPaymentsView';
 
 // Types
 import {
   User, Bot, CUHistoryRecord, SpendEvent, DailyBurn,
   AdminActivity, Exchange, AdminUser, StrategyActivity,
-  Agent, AiChatLog, AiSupportModel,
+  Agent, AiChatLog, AiSupportModel, CuEvent, CuPackage, PaymentRecord,
 } from './types';
 
 // Feature data
 import { INITIAL_SPEND_EVENTS, INITIAL_DAILY_BURN, INITIAL_STRATEGY_ACTIVITIES } from './features/cu-reports/data';
 import { INITIAL_USERS, MOCK_CU_HISTORY, MOCK_API_KEYS, MOCK_PAYMENTS, MOCK_REFERRALS, MOCK_USER_TRADING_STATS } from './features/users/data';
 import { INITIAL_BOTS }              from './features/strategies/data';
-import { MOCK_ALL_PAYMENTS }         from './features/payments/data';
 import { MOCK_TRADING_REPORT }       from './features/trading-report/data';
 import { INITIAL_AGENTS, MOCK_AI_CHAT_LOGS, INITIAL_AI_SUPPORT_MODELS } from './features/ai/data';
 import { INITIAL_EXCHANGES }         from './features/exchanges/data';
 import { INITIAL_ADMIN_ACTIVITY }    from './features/audit-log/data';
+import { INITIAL_CU_EVENTS, INITIAL_CU_PACKAGES, MOCK_SUB_PAYMENTS } from './features/subscription/data';
 
 export default function App() {
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -64,6 +66,10 @@ export default function App() {
   const [agents,        setAgents]        = useState<Agent[]>(INITIAL_AGENTS);
   const [aiChatLogs]                      = useState<AiChatLog[]>(MOCK_AI_CHAT_LOGS);
   const [aiSupportModels, setAiSupportModels] = useState<AiSupportModel[]>(INITIAL_AI_SUPPORT_MODELS);
+  // Subscription
+  const [cuEvents,      setCuEvents]      = useState<CuEvent[]>(INITIAL_CU_EVENTS);
+  const [cuPackages,    setCuPackages]    = useState<CuPackage[]>(INITIAL_CU_PACKAGES);
+  const [subPayments,   setSubPayments]   = useState<PaymentRecord[]>(MOCK_SUB_PAYMENTS);
 
   // ── Mutation tracking ─────────────────────────────────────────────────────
   const [originalBots,    setOriginalBots]    = useState<Bot[]>(INITIAL_BOTS);
@@ -249,9 +255,6 @@ export default function App() {
           />
         );
 
-      case ROUTES.PAYMENTS_ALL:
-        return <PaymentsAllView payments={MOCK_ALL_PAYMENTS} />;
-
       case ROUTES.TRADING_REPORT:
         return <TradingReportView rows={MOCK_TRADING_REPORT} />;
 
@@ -293,6 +296,34 @@ export default function App() {
             bot={activeBotObject}
             onBackToStrategies={() => setCurrentView(ROUTES.STRATEGIES)}
             onToggleStatus={() => handleToggleBotStatus(activeBotObject.id)}
+          />
+        );
+
+      case ROUTES.SUB_CU_EVENTS:
+        return (
+          <CuEventsView
+            events={cuEvents}
+            onAdd={e  => setCuEvents(prev => [...prev, e])}
+            onUpdate={e  => setCuEvents(prev => prev.map(x => x.id === e.id ? e : x))}
+            onDelete={id => setCuEvents(prev => prev.filter(x => x.id !== id))}
+          />
+        );
+
+      case ROUTES.SUB_CU_PACKAGES:
+        return (
+          <CuPackagesView
+            packages={cuPackages}
+            onAdd={p  => setCuPackages(prev => [...prev, p])}
+            onUpdate={p  => setCuPackages(prev => prev.map(x => x.id === p.id ? p : x))}
+            onDelete={id => setCuPackages(prev => prev.filter(x => x.id !== id))}
+          />
+        );
+
+      case ROUTES.SUB_PAYMENTS:
+        return (
+          <SubscriptionPaymentsView
+            payments={subPayments}
+            packages={cuPackages}
           />
         );
 

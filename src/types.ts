@@ -67,11 +67,38 @@ export interface UserApiKey {
 export interface PaymentRecord {
   id: string;
   username?: string;
+  packageId?: string;
+  packageName?: string;
   timestamp: string;
   amountUsd: number;
   cuCredited: number;
   method: string;
   status: 'SUCCESS' | 'PENDING' | 'FAILED';
+}
+
+// ── Subscription module ────────────────────────────────────────────────────
+
+export type CuEventCategory = 'SPEND' | 'BONUS' | 'SYSTEM';
+
+export interface CuEvent {
+  id: string;
+  eventName: string;
+  cuCost: number;
+  category: CuEventCategory;
+  description: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  createdDate: string;
+}
+
+export interface CuPackage {
+  id: string;
+  name: string;
+  cuAmount: number;
+  priceUsd: number;
+  discountPercent: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  badge?: string;
+  createdDate: string;
 }
 
 export interface ReferralsInfo {
