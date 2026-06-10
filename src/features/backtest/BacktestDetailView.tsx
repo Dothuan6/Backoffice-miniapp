@@ -317,6 +317,30 @@ export default function BacktestDetailView({ job, result, onBack }: Props) {
         </div>
       </div>
 
+      {/* Strategy Config */}
+      {job.config && (
+        <div className="bg-[#121824] border border-[#1e2638] rounded-xl px-5 py-3.5">
+          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3 font-mono">Strategy Config</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            {[
+              { label: '% DCA Drop',    val: `-${job.config.dcaDropPct}%`,    hint: 'trigger',         color: 'text-red-400'     },
+              { label: 'DCA Confirm',   val: `+${job.config.dcaConfirmPct}%`, hint: 'kích hoạt mua',   color: 'text-emerald-400' },
+              { label: '% Take Profit', val: `+${job.config.takeProfitPct}%`, hint: 'trigger',         color: 'text-emerald-400' },
+              { label: 'TP Confirm',    val: `+${job.config.tpConfirmPct}%`,  hint: 'kích hoạt bán',   color: 'text-blue-400'    },
+              { label: 'Stop Loss',     val: `-${job.config.stopLossPct}%`,   hint: 'trigger',         color: 'text-red-400'     },
+              { label: 'Multiplier',    val: `×${job.config.multiplier}`,     hint: 'hệ số nhân',      color: 'text-violet-400'  },
+              { label: 'First Buy',     val: `$${job.config.firstBuyUsd}`,    hint: 'USDT',            color: 'text-amber-400'   },
+            ].map(c => (
+              <div key={c.label}>
+                <p className="text-[9px] text-slate-600 font-mono uppercase tracking-wider leading-tight">{c.label}</p>
+                <p className="text-[9px] text-slate-600 font-mono">{c.hint}</p>
+                <p className={`text-sm font-bold font-mono mt-0.5 ${c.color}`}>{c.val}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {metrics.map(m => (

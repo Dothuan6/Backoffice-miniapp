@@ -206,6 +206,16 @@ export type BacktestStatus       = 'QUEUED' | 'RUNNING' | 'SUCCESS' | 'FAILED' |
 export type BacktestTimeframe    = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
 export type BacktestStrategyType = 'DCA' | 'GRID' | 'TRAILING';
 
+export interface BacktestStrategyConfig {
+  dcaDropPct:    number;   // % price drop that triggers a DCA order
+  dcaConfirmPct: number;   // % recovery after drop to confirm the buy
+  takeProfitPct: number;   // % profit from avg cost to trigger take-profit
+  tpConfirmPct:  number;   // % pullback from peak to confirm the sell
+  stopLossPct:   number;   // % loss from avg cost to trigger stop-loss
+  multiplier:    number;   // each subsequent DCA order is multiplier× previous
+  firstBuyUsd:   number;   // size of the first buy order in USDT
+}
+
 export interface BacktestJob {
   id: string;
   strategyId: string;
@@ -223,6 +233,7 @@ export interface BacktestJob {
   completedAt?: string;
   resultId?: string;
   errorMessage?: string;
+  config?: BacktestStrategyConfig;
 }
 
 export interface BacktestTrade {

@@ -4,21 +4,23 @@ import {
   CheckCircle2, Loader2, AlertCircle, Ban, Clock,
   ChevronUp, ChevronDown,
 } from 'lucide-react';
-import { BacktestJob, BacktestResult, BacktestStatus, BacktestTimeframe, BacktestStrategyType } from '../../types';
+import { BacktestJob, BacktestResult, BacktestStatus, BacktestTimeframe, BacktestStrategyType, BacktestStrategyConfig } from '../../types';
 import { generateResult } from './data';
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const STRATEGY_OPTIONS: { id: string; name: string; type: BacktestStrategyType }[] = [
-  { id: 'STR-1', name: 'DCA Pro v2',          type: 'DCA'      },
-  { id: 'STR-2', name: 'Grid Master ETH',      type: 'GRID'     },
-  { id: 'STR-3', name: 'Trailing Scalper BNB', type: 'TRAILING' },
-  { id: 'STR-4', name: 'DCA SOL Aggressive',   type: 'DCA'      },
-  { id: 'STR-5', name: 'Grid BTC Long-term',   type: 'GRID'     },
-];
-
 const SYMBOLS    = ['BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT'] as const;
 const EXCHANGES  = ['Binance', 'OKX', 'Bybit'] as const;
 const TIMEFRAMES: BacktestTimeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d'];
+
+const DEFAULT_CFG: BacktestStrategyConfig = {
+  dcaDropPct:    3.5,
+  dcaConfirmPct: 0.5,
+  takeProfitPct: 5.0,
+  tpConfirmPct:  0.3,
+  stopLossPct:   15.0,
+  multiplier:    1.5,
+  firstBuyUsd:   100,
+};
 
 const STATUS_CFG: Record<BacktestStatus, { label: string; cls: string; icon: React.ReactNode }> = {
   QUEUED:    { label: 'Queued',    cls: 'bg-slate-500/10  text-slate-400  border-slate-500/20',   icon: <Clock       className="w-3 h-3" /> },
@@ -34,6 +36,27 @@ const TYPE_CLS: Record<BacktestStrategyType, string> = {
   TRAILING: 'bg-amber-500/10  text-amber-400  border border-amber-500/20',
 };
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+const INP = 'w-full bg-[#0d121f] border border-[#1e2638] rounded-lg py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors';
+const LBL = 'block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1';
+
+function PctInput({ label, value, onChange, min = 0.01, max = 100, step = 0.1, hint }: {
+  label: string; value: string; onChange: (v: string) => void;
+  min?: number; max?: number; step?: number; hint?: string;
+}) {
+  return (
+    <div>
+      <label className={LBL}>{label}{hint && <span className="normal-case text-slate-600 ml-1">({hint})</span>}</label>
+      <div className="relative">
+        <input type="number" value={value} onChange={e => onChange(e.target.value)}
+          min={min} max={max} step={step}
+          className={`${INP} pl-3 pr-8`} />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500 font-mono select-none">%</span>
+      </div>
+    </div>
+  );
+}
+
 // ── New Backtest Modal ──────────────────────────────────────────────────────
 interface NewModalProps {
   onClose: () => void;
@@ -42,119 +65,208 @@ interface NewModalProps {
 }
 
 function NewBacktestModal({ onClose, onSubmit, prefill }: NewModalProps) {
-  const [stratIdx,   setStratIdx]   = useState(prefill ? STRATEGY_OPTIONS.findIndex(s => s.id === prefill.strategyId) : 0);
-  const [symbol,     setSymbol]     = useState<string>(prefill?.symbol     ?? 'BTC/USDT');
-  const [exchange,   setExchange]   = useState<string>(prefill?.exchange   ?? 'Binance');
+  const p = prefill?.config ?? DEFAULT_CFG;
+
+  // Basic
+  const [stratName,  setStratName]  = useState(prefill?.strategyName ?? '');
+  const [stratType,  setStratType]  = useState<BacktestStrategyType>(prefill?.strategyType ?? 'DCA');
+  const [symbol,     setSymbol]     = useState<string>(prefill?.symbol    ?? 'BTC/USDT');
+  const [exchange,   setExchange]   = useState<string>(prefill?.exchange  ?? 'Binance');
+  // Range
   const [timeframe,  setTimeframe]  = useState<BacktestTimeframe>(prefill?.timeframe ?? '1h');
   const [startDate,  setStartDate]  = useState(prefill?.startDate ?? '2024-01-01');
   const [endDate,    setEndDate]    = useState(prefill?.endDate   ?? '2024-06-30');
   const [capital,    setCapital]    = useState(String(prefill?.initialCapital ?? 1000));
-  const [error,      setError]      = useState('');
+  // DCA config
+  const [dcaDrop,    setDcaDrop]    = useState(String(p.dcaDropPct));
+  const [dcaConfirm, setDcaConfirm] = useState(String(p.dcaConfirmPct));
+  const [firstBuy,   setFirstBuy]   = useState(String(p.firstBuyUsd));
+  const [mult,       setMult]       = useState(String(p.multiplier));
+  // Exit config
+  const [tp,         setTp]         = useState(String(p.takeProfitPct));
+  const [tpConfirm,  setTpConfirm]  = useState(String(p.tpConfirmPct));
+  const [sl,         setSl]         = useState(String(p.stopLossPct));
 
-  const strat = STRATEGY_OPTIONS[stratIdx]!;
+  const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (!startDate || !endDate) { setError('Please fill in all date fields.'); return; }
+    if (!stratName.trim())            { setError('Strategy name is required.');              return; }
+    if (!startDate || !endDate)       { setError('Both dates are required.');                return; }
     if (new Date(startDate) >= new Date(endDate)) { setError('Start date must be before end date.'); return; }
-    const capNum = parseFloat(capital);
-    if (isNaN(capNum) || capNum < 10) { setError('Initial capital must be at least $10.'); return; }
-    const diffDays = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000;
-    if (diffDays > 730) { setError('Date range cannot exceed 2 years.'); return; }
+    const capN = parseFloat(capital);
+    if (isNaN(capN) || capN < 10)    { setError('Initial capital must be at least $10.');   return; }
+    const diff = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000;
+    if (diff > 730)                   { setError('Date range cannot exceed 2 years.');       return; }
+    const fbN = parseFloat(firstBuy);
+    if (isNaN(fbN) || fbN < 1)       { setError('First buy must be at least $1.');          return; }
+    if (fbN > capN)                   { setError('First buy cannot exceed initial capital.'); return; }
+    const multN = parseFloat(mult);
+    if (isNaN(multN) || multN < 1)   { setError('Multiplier must be ≥ 1.');                 return; }
+
     onSubmit({
-      strategyId:     strat.id,
-      strategyName:   strat.name,
-      strategyType:   strat.type,
+      strategyId:     `STR-${Date.now()}`,
+      strategyName:   stratName.trim(),
+      strategyType:   stratType,
       symbol, exchange, timeframe,
       startDate, endDate,
-      initialCapital: capNum,
+      initialCapital: capN,
+      config: {
+        dcaDropPct:    parseFloat(dcaDrop),
+        dcaConfirmPct: parseFloat(dcaConfirm),
+        takeProfitPct: parseFloat(tp),
+        tpConfirmPct:  parseFloat(tpConfirm),
+        stopLossPct:   parseFloat(sl),
+        multiplier:    multN,
+        firstBuyUsd:   fbN,
+      },
     });
     onClose();
   };
 
+  const SectionHead = ({ label }: { label: string }) => (
+    <div className="flex items-center gap-3 pt-2">
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">{label}</span>
+      <div className="flex-1 h-px bg-[#1e2638]" />
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#111827] border border-[#1e2638] rounded-2xl w-full max-w-lg shadow-2xl mx-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-[#111827] border border-[#1e2638] rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[92vh]">
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e2638]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e2638] shrink-0">
           <div className="flex items-center gap-2.5">
             <FlaskConical className="w-4 h-4 text-blue-400" />
             <h3 className="text-sm font-semibold text-white">{prefill ? 'Re-run Backtest' : 'New Backtest'}</h3>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer"><X className="w-4 h-4" /></button>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-4">
-          {/* Strategy */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Strategy</label>
-            <select value={stratIdx} onChange={e => setStratIdx(Number(e.target.value))}
-              className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer">
-              {STRATEGY_OPTIONS.map((s, i) => (
-                <option key={s.id} value={i}>{s.name} ({s.type})</option>
-              ))}
-            </select>
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+
+          {/* ── STRATEGY ─────────────────────────────────────────────── */}
+          <SectionHead label="Strategy" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2 sm:col-span-1">
+              <label className={LBL}>Name</label>
+              <input type="text" value={stratName} onChange={e => setStratName(e.target.value)}
+                placeholder="e.g. DCA Pro BTC v3"
+                className={`${INP} px-3`} />
+            </div>
+            <div>
+              <label className={LBL}>Type</label>
+              <select value={stratType} onChange={e => setStratType(e.target.value as BacktestStrategyType)}
+                className={`${INP} px-3 cursor-pointer`}>
+                <option value="DCA">DCA</option>
+                <option value="GRID">GRID</option>
+                <option value="TRAILING">TRAILING</option>
+              </select>
+            </div>
           </div>
 
-          {/* Symbol + Exchange */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Symbol</label>
-              <select value={symbol} onChange={e => setSymbol(e.target.value)}
-                className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer">
+              <label className={LBL}>Symbol</label>
+              <select value={symbol} onChange={e => setSymbol(e.target.value)} className={`${INP} px-3 cursor-pointer`}>
                 {SYMBOLS.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Exchange</label>
-              <select value={exchange} onChange={e => setExchange(e.target.value)}
-                className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer">
+              <label className={LBL}>Exchange</label>
+              <select value={exchange} onChange={e => setExchange(e.target.value)} className={`${INP} px-3 cursor-pointer`}>
                 {EXCHANGES.map(e => <option key={e}>{e}</option>)}
               </select>
             </div>
           </div>
 
-          {/* Timeframe */}
+          {/* ── BACKTEST RANGE ───────────────────────────────────────── */}
+          <SectionHead label="Backtest Range" />
           <div>
-            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Timeframe</label>
+            <label className={LBL}>Timeframe</label>
             <div className="flex gap-1.5">
               {TIMEFRAMES.map(tf => (
                 <button key={tf} onClick={() => setTimeframe(tf)}
                   className={`flex-1 py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
-                    timeframe === tf
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-[#0d121f] text-slate-400 border-[#1e2638] hover:border-blue-500 hover:text-white'
+                    timeframe === tf ? 'bg-blue-600 text-white border-blue-600' : 'bg-[#0d121f] text-slate-400 border-[#1e2638] hover:border-blue-500 hover:text-white'
                   }`}>{tf}</button>
               ))}
             </div>
           </div>
-
-          {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
+              <label className={LBL}>Start Date</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-                className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer" />
+                className={`${INP} px-3 cursor-pointer`} />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
-              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} max={new Date().toISOString().slice(0, 10)}
-                className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer" />
+              <label className={LBL}>End Date</label>
+              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
+                max={new Date().toISOString().slice(0, 10)} className={`${INP} px-3 cursor-pointer`} />
+            </div>
+          </div>
+          <div>
+            <label className={LBL}>Initial Capital (USDT)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500 font-mono select-none">$</span>
+              <input type="number" value={capital} onChange={e => setCapital(e.target.value)} min={10}
+                className={`${INP} pl-7 pr-3`} />
             </div>
           </div>
 
-          {/* Capital */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Initial Capital (USDT)</label>
-            <input type="number" value={capital} onChange={e => setCapital(e.target.value)} min={10}
-              className="w-full bg-[#0d121f] border border-[#1e2638] rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500" />
+          {/* ── DCA PARAMETERS ──────────────────────────────────────── */}
+          <SectionHead label="DCA Parameters" />
+          <div className="grid grid-cols-2 gap-3">
+            <PctInput label="% DCA Drop" value={dcaDrop} onChange={setDcaDrop}
+              hint="trigger" min={0.1} max={30} />
+            <PctInput label="DCA Confirm %" value={dcaConfirm} onChange={setDcaConfirm}
+              hint="kích hoạt mua" min={0} max={10} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={LBL}>First Buy <span className="normal-case text-slate-600">(USDT)</span></label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500 font-mono select-none">$</span>
+                <input type="number" value={firstBuy} onChange={e => setFirstBuy(e.target.value)} min={1}
+                  className={`${INP} pl-7 pr-3`} />
+              </div>
+            </div>
+            <div>
+              <label className={LBL}>Hệ số nhân <span className="normal-case text-slate-600">(multiplier)</span></label>
+              <div className="relative">
+                <input type="number" value={mult} onChange={e => setMult(e.target.value)} min={1} max={10} step={0.1}
+                  className={`${INP} pl-3 pr-7`} />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-500 font-mono select-none">×</span>
+              </div>
+            </div>
           </div>
 
-          {error && <p className="text-xs text-red-400 font-mono bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
+          {/* ── EXIT PARAMETERS ─────────────────────────────────────── */}
+          <SectionHead label="Exit Parameters" />
+          <div className="grid grid-cols-2 gap-3">
+            <PctInput label="% Take Profit" value={tp} onChange={setTp}
+              hint="trigger" min={0.1} max={100} />
+            <PctInput label="TP Confirm %" value={tpConfirm} onChange={setTpConfirm}
+              hint="kích hoạt bán" min={0} max={10} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <PctInput label="Stop Loss %" value={sl} onChange={setSl}
+              hint="trigger" min={0.1} max={100} />
+            <div /> {/* spacer */}
+          </div>
+
+          {error && (
+            <p className="text-xs text-red-400 font-mono bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-6 py-4 border-t border-[#1e2638]">
+        <div className="flex gap-3 px-6 py-4 border-t border-[#1e2638] shrink-0">
           <button onClick={onClose}
             className="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-white border border-[#1e2638] rounded-lg transition-colors cursor-pointer">
             Cancel
