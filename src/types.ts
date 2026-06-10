@@ -199,3 +199,59 @@ export interface TradingReportRow {
   winRate: number;
   lastActivity: string;
 }
+
+// ── Backtest module ─────────────────────────────────────────────────────────
+
+export type BacktestStatus       = 'QUEUED' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
+export type BacktestTimeframe    = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
+export type BacktestStrategyType = 'DCA' | 'GRID' | 'TRAILING';
+
+export interface BacktestJob {
+  id: string;
+  strategyId: string;
+  strategyName: string;
+  strategyType: BacktestStrategyType;
+  symbol: string;
+  exchange: string;
+  timeframe: BacktestTimeframe;
+  startDate: string;
+  endDate: string;
+  initialCapital: number;
+  status: BacktestStatus;
+  progress?: number;
+  createdAt: string;
+  completedAt?: string;
+  resultId?: string;
+  errorMessage?: string;
+}
+
+export interface BacktestTrade {
+  id: string;
+  side: 'BUY' | 'SELL';
+  entryPrice: number;
+  exitPrice: number;
+  qty: number;
+  pnlUsd: number;
+  pnlPct: number;
+  entryTime: string;
+  exitTime: string;
+  duration: string;
+  reason: string;
+}
+
+export interface BacktestResult {
+  jobId: string;
+  totalPnlUsd: number;
+  totalPnlPct: number;
+  sharpeRatio: number;
+  maxDrawdownPct: number;
+  winRate: number;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  avgWinUsd: number;
+  avgLossUsd: number;
+  profitFactor: number;
+  equityCurve: { date: string; equity: number }[];
+  trades: BacktestTrade[];
+}

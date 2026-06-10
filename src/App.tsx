@@ -22,12 +22,15 @@ import SettingsView               from './features/settings/SettingsView';
 import CuEventsView               from './features/subscription/CuEventsView';
 import CuPackagesView             from './features/subscription/CuPackagesView';
 import SubscriptionPaymentsView   from './features/subscription/SubscriptionPaymentsView';
+import BacktestJobsView           from './features/backtest/BacktestJobsView';
+import BacktestDetailView         from './features/backtest/BacktestDetailView';
 
 // Types
 import {
   User, Bot, CUHistoryRecord, SpendEvent, DailyBurn,
   AdminActivity, Exchange, AdminUser, StrategyActivity,
   Agent, AiChatLog, AiSupportModel, CuEvent, CuPackage, PaymentRecord,
+  BacktestJob, BacktestResult,
 } from './types';
 
 // Feature data
@@ -39,6 +42,7 @@ import { INITIAL_AGENTS, MOCK_AI_CHAT_LOGS, INITIAL_AI_SUPPORT_MODELS } from './
 import { INITIAL_EXCHANGES }         from './features/exchanges/data';
 import { INITIAL_ADMIN_ACTIVITY }    from './features/audit-log/data';
 import { INITIAL_CU_EVENTS, INITIAL_CU_PACKAGES, MOCK_SUB_PAYMENTS } from './features/subscription/data';
+import { INITIAL_BACKTEST_JOBS, BACKTEST_RESULTS } from './features/backtest/data';
 
 export default function App() {
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -70,6 +74,10 @@ export default function App() {
   const [cuEvents,      setCuEvents]      = useState<CuEvent[]>(INITIAL_CU_EVENTS);
   const [cuPackages,    setCuPackages]    = useState<CuPackage[]>(INITIAL_CU_PACKAGES);
   const [subPayments,   setSubPayments]   = useState<PaymentRecord[]>(MOCK_SUB_PAYMENTS);
+  // Backtest
+  const [backtestJobs,    setBacktestJobs]    = useState<BacktestJob[]>(INITIAL_BACKTEST_JOBS);
+  const [backtestResults, setBacktestResults] = useState<Record<string, BacktestResult>>(BACKTEST_RESULTS);
+  const [selectedBtJobId, setSelectedBtJobId] = useState<string | null>(null);
 
   // ── Mutation tracking ─────────────────────────────────────────────────────
   const [originalBots,    setOriginalBots]    = useState<Bot[]>(INITIAL_BOTS);
@@ -326,6 +334,30 @@ export default function App() {
             packages={cuPackages}
           />
         );
+
+      case ROUTES.BACKTEST_JOBS:
+        return (
+          <BacktestJobsView
+            jobs={backtestJobs}
+            results={backtestResults}
+            setJobs={setBacktestJobs}
+            setResults={setBacktestResults}
+            onViewDetail={(id) => { setSelectedBtJobId(id); setCurrentView(ROUTES.BACKTEST_DETAIL); }}
+          />
+        );
+
+      case ROUTES.BACKTEST_DETAIL: {
+        const btJob    = backtestJobs.find(j => j.id === selectedBtJobId);
+        const btResult = selectedBtJobId ? backtestResults[selectedBtJobId] : undefined;
+        if (!btJob || !btResult) return null;
+        return (
+          <BacktestDetailView
+            job={btJob}
+            result={btResult}
+            onBack={() => setCurrentView(ROUTES.BACKTEST_JOBS)}
+          />
+        );
+      }
 
       case ROUTES.ADMINS:
         return <AdminManagementView admins={admins} onAddAdmin={handleCreateAdmin} />;

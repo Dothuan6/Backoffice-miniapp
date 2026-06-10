@@ -7,6 +7,9 @@ export const ROUTES = {
   SUB_CU_EVENTS:   'sub_cu_events',
   SUB_CU_PACKAGES: 'sub_cu_packages',
   SUB_PAYMENTS:    'sub_payments',
+  // Backtest
+  BACKTEST_JOBS:   'backtest_jobs',
+  BACKTEST_DETAIL: 'backtest_detail',
   // Core
   USERS:           'users',
   USER_PROFILE:    'user-profile',

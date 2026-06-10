@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Cpu, FileSpreadsheet, ScrollText, Settings, ChevronDown, Landmark, Menu, X, Shield, CreditCard, BarChart2, BotMessageSquare, Cpu as CpuIcon, ChevronRight, Layers, Zap, Package } from 'lucide-react';
+import { Users, Cpu, FileSpreadsheet, ScrollText, Settings, ChevronDown, Landmark, Menu, X, Shield, CreditCard, BarChart2, BotMessageSquare, Cpu as CpuIcon, ChevronRight, Layers, Zap, Package, FlaskConical } from 'lucide-react';
 
 interface SidebarProps {
   currentView: string;
@@ -41,6 +41,7 @@ export default function Sidebar({
   const menuItems: MenuItem[] = [
     { id: 'cu_reports',     label: 'CU Reports',    icon: FileSpreadsheet },
     { id: 'trading_report', label: 'Trading Report', icon: BarChart2 },
+    { id: 'backtest_jobs',  label: 'Backtest',       icon: FlaskConical },
     {
       id: '__ai_group__',
       label: 'AI',
@@ -133,8 +134,9 @@ export default function Sidebar({
 
     // ── Regular item ──────────────────────────────────────────────────────
     const isActive = currentView === item.id ||
-                     (item.id === 'users' && currentView === 'user-profile') ||
-                     (item.id === 'strategies' && currentView === 'bot-detail');
+                     (item.id === 'users'         && currentView === 'user-profile')    ||
+                     (item.id === 'strategies'    && currentView === 'bot-detail')      ||
+                     (item.id === 'backtest_jobs' && currentView === 'backtest_detail');
     return (
       <button
         key={item.id}
